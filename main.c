@@ -8,6 +8,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 #include "pico/binary_info.h"
+#include "relay.h"
 
 const uint LED_PIN = 25;
 
