@@ -1,0 +1,10 @@
+{
+"cortex-debug.openocdPath": "C:/VSARM/openocd/openocd.exe",
+"cortex-debug.gdbPath": "arm-none-eabi-gdb",
+"files.associations": {
+    "stdio.h": "c",
+    "stdlib.h": "c",
+    "gpio.h": "c",
+    "binary_info.h": "c"
+}
+}
