@@ -11,8 +11,18 @@
 
 alarm_callback_t closeTimerCallback(alarm_id_t id, void*closePin);
 alarm_callback_t openTimerCallback(alarm_id_t id, void*openPin);
+
+/*! \brief Initialize output relay
+ *  \ingroup relay
+ *
+ * \param closePin RP2040 pin driving the relay close input
+ * \param openPin RP2040 pin driving the relay open input
+ */
 void relayInit(int closePin, int openPin);
 void closeRelay(int closePin);
+
+/// @brief Open the relay
+/// @param openPin RP2040 pin driving the relay open input
 void openRelay(int openPin);
 
 #endif //RELAY_H

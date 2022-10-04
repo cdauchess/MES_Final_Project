@@ -5,6 +5,7 @@
     "stdio.h": "c",
     "stdlib.h": "c",
     "gpio.h": "c",
-    "binary_info.h": "c"
+    "binary_info.h": "c",
+    "relay.h": "c"
 }
 }
