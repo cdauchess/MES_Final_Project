@@ -7,7 +7,7 @@
         {
             "name": "Cortex Debug",
             "cwd": "${workspaceRoot}",
-            "executable": "${workspaceRoot}/build/main.elf",
+            "executable": "${workspaceRoot}/build/pio_ws2812.elf",
             "request": "launch",
             "type": "cortex-debug",
             "servertype": "openocd",
