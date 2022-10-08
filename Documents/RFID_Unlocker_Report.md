@@ -61,6 +61,8 @@ Currently a placeholder
 ## To Do Items
 This is likely to be an everchanging list
 - [ ] RFID Driver
+- [ ] Continue working with each peripheral independently to gain familiarity
+- [ ] Bring everything together!
 - [ ] Many things to list here
 - [ ] Bonus: Custom PCB
     - making progress here
