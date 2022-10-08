@@ -16,7 +16,7 @@ I'm using the Raspberry Pi PICO development board for this project.  This has a 
 - RP2040
 - RFID: MFRC522 : SPI
 - Latching Relay : GPIO
-- WS2812B LED : PWM
+- WS2812B LED
     - Fun with colors!
 - 12V to 5V DC DC Converter
     - Accepting 12V external power
