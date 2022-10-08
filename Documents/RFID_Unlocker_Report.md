@@ -14,16 +14,17 @@ This system provides a method to control access to a small electric vehicle thro
 I'm using the Raspberry Pi PICO development board for this project.  This has a Raspberry Pi RP2040 microcontroller, a dual-core Arm Cortex M0+ processor. 
 
 - RP2040
-- RFID: MFRC522
-- Latching Relay
-- WS2812B LED
+- RFID: MFRC522 : SPI
+- Latching Relay : GPIO
+- WS2812B LED : PWM
     - Fun with colors!
 - 12V to 5V DC DC Converter
     - Accepting 12V external power
-- ADXL343 Accelerometer
+- ADXL343 Accelerometer : I2C
     - This could prove challenging with just a 3 axis sensor.  This may be a point for future improvement
-- Button for user interface
-- CAT24C32 EEPROM
+    - Interested in exploring the inactivity feature built into this accelerometer
+- Button for user interface : GPIO with interrupt
+- CAT24C32 EEPROM : I2C
 
 ## Software Description
 
