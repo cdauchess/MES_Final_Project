@@ -12,7 +12,7 @@ add_executable(main
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet
-pico_generate_pio_header(main ${CMAKE_CURRENT_LIST_DIR}/ws2812.pio OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR}/source/generated)
+pico_generate_pio_header(main ${CMAKE_CURRENT_LIST_DIR}/source/PIO/ws2812.pio OUTPUT_DIR ${CMAKE_CURRENT_LIST_DIR}/source/generated)
 
 pico_enable_stdio_usb(main 0)
 pico_enable_stdio_uart(main 1)
