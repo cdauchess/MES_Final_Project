@@ -6,6 +6,7 @@
     "stdlib.h": "c",
     "gpio.h": "c",
     "binary_info.h": "c",
-    "relay.h": "c"
+    "clocks.h": "c",
+    "ws2812.pio.h": "c"
 }
 }
