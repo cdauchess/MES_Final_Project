@@ -7,6 +7,8 @@
 
 const uint LED_PIN = 25;
 const uint PIN_TX = 15;
+const uint CLOSE_PIN = 19;
+const uint OPEN_PIN = 18;
 
 int main() {
     bi_decl(bi_program_description("PROJECT DESCRIPTION"));
@@ -22,15 +24,19 @@ int main() {
 
     neopixel_init(PIN_TX);
 
+    relayInit(CLOSE_PIN, OPEN_PIN);
+
 
 
     while(1) {
         gpio_put(LED_PIN, 0);
         put_pixel(red);
-        sleep_ms(250);
+        closeRelay(CLOSE_PIN);
+        busy_wait_ms(1000);
         put_pixel(blue);
+        openRelay(OPEN_PIN);
         gpio_put(LED_PIN, 1);
         puts("Hello World\n");
-        sleep_ms(1000);
+        busy_wait_ms(1000);
     }
 }
