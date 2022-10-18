@@ -9,8 +9,8 @@
 
 #define COIL_DELAY 20 //delay in ms to hold the pin high to set the coil
 
-alarm_callback_t closeTimerCallback(alarm_id_t id, void*closePin);
-alarm_callback_t openTimerCallback(alarm_id_t id, void*openPin);
+alarm_callback_t closeTimerCallback(alarm_id_t id, void*user_data);
+alarm_callback_t openTimerCallback(alarm_id_t id, void*user_data);
 
 /*! \brief Initialize output relay
  *  \ingroup relay
@@ -18,11 +18,11 @@ alarm_callback_t openTimerCallback(alarm_id_t id, void*openPin);
  * \param closePin RP2040 pin driving the relay close input
  * \param openPin RP2040 pin driving the relay open input
  */
-void relayInit(int closePin, int openPin);
-void closeRelay(int closePin);
+void relayInit(uint closePin, uint openPin);
+void closeRelay(uint closePin);
 
 /// @brief Open the relay
 /// @param openPin RP2040 pin driving the relay open input
-void openRelay(int openPin);
+void openRelay(uint openPin);
 
 #endif //RELAY_H

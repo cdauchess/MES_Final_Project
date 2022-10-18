@@ -9,6 +9,7 @@ pico_sdk_init()
 add_executable(main    
     source/main.c
     source/Neopixel.c
+    source/relay.c
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet
