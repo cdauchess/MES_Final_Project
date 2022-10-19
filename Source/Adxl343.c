@@ -23,7 +23,8 @@ int RFID_I2C_Init(){
 int accl_wakeup(){
     uint8_t measureBit = 3;
     uint8_t powerReg = 0x2D;
-    uint8_t regData = 0x1<<measureBit;
+    uint8_t regData = 0x8;
+    //regData &= 0x1<<measureBit;
     i2c_write_blocking(i2c1,ACCL_ADDR,&powerReg,1,true);
     i2c_write_blocking(i2c1,ACCL_ADDR,&regData,1,false);
 }
@@ -34,7 +35,7 @@ int accl_read(int16_t accel[3]){
     uint8_t dataStart = 0x32;
     uint8_t buffer[6];
     i2c_write_blocking(i2c1,ACCL_ADDR,&dataStart,1,true);
-    i2c_read_blocking(i2c_default, ACCL_ADDR, buffer, 6, false);
+    i2c_read_blocking(i2c1, ACCL_ADDR, buffer, 6, false);
 
     for (int i = 0; i < 3; i++) {
         accel[i] = (buffer[i * 2] << 8 | buffer[(i * 2) + 1]);
