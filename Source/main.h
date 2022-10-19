@@ -10,3 +10,4 @@
 
 #include "neopixel.h"
 #include "relay.h"
+#include "Adxl343.h"
