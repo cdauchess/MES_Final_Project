@@ -20,7 +20,7 @@ I'm using the Raspberry Pi PICO development board for this project.  This has a 
     - Fun with colors!
 - 12V to 5V DC DC Converter
     - Accepting 12V external power
-- ADXL343 Accelerometer : I2C
+- [ADXL343](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL343.pdf) Accelerometer : I2C
     - This could prove challenging with just a 3 axis sensor.  This may be a point for future improvement
     - Interested in exploring the inactivity feature built into this accelerometer
 - Button for user interface : GPIO with interrupt
