@@ -24,9 +24,17 @@ int accl_wakeup(){
     uint8_t measureBit = 3;
     uint8_t powerReg = 0x2D;
     uint8_t regData = 0x8;
+    uint8_t buffer = 0;
+    uint8_t txBuffer[] = {powerReg, regData};
     //regData &= 0x1<<measureBit;
+    i2c_write_blocking(i2c1,ACCL_ADDR,0x00,1,true);
+    i2c_read_blocking(i2c1,ACCL_ADDR,&buffer,1,false);
+
+    i2c_write_blocking(i2c1,ACCL_ADDR,txBuffer,2,false);
+    //i2c_write_blocking(i2c1,ACCL_ADDR,&regData,1,false);
+
     i2c_write_blocking(i2c1,ACCL_ADDR,&powerReg,1,true);
-    i2c_write_blocking(i2c1,ACCL_ADDR,&regData,1,false);
+    i2c_read_blocking(i2c1,ACCL_ADDR,&buffer,1,false);
 }
 //Stream mode?  Time isn't super sensitive
 
