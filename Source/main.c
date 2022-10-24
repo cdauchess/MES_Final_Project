@@ -41,7 +41,12 @@ int main() {
         gpio_put(LED_PIN, 0);
         put_pixel(red);
         accl_read(&accels);
-         printf("Acc. X = %d, Y = %d, Z = %d\n", accels[0], accels[1], accels[2]);
+
+        printf("Accel: X = %d.%d, Y = %d.%d, Z = %d.%d\n", 
+            accels[0]/1000,accels[0]%1000, 
+            accels[1]/1000,accels[1]%1000,
+            accels[2]/1000,accels[2]%1000);
+
         //closeRelay(CLOSE_PIN);
         busy_wait_ms(1000);
         put_pixel(blue);

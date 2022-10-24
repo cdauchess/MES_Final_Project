@@ -45,6 +45,7 @@ int accl_read(int16_t accel[3]){
     i2c_write_blocking(i2c1,ACCL_ADDR,&dataStart,1,true);
     i2c_read_blocking(i2c1, ACCL_ADDR, buffer, 6, false);
 
+    //Convert to milli G.  This should allow for decent display resolution while not working with floats.
     for (int i = 0; i < 3; i++) {
         accel[i] = (buffer[i * 2 + 1] << 8 | buffer[(i * 2)])/4;
     }
