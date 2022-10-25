@@ -8,6 +8,7 @@
     "binary_info.h": "c",
     "clocks.h": "c",
     "ws2812.pio.h": "c",
-    "i2c.h": "c"
+    "i2c.h": "c",
+    "Adxl343.h": "c"
 }
 }

@@ -42,17 +42,19 @@ int main() {
         put_pixel(red);
         accl_read(&accels);
 
-        printf("Accel: X = %d.%d, Y = %d.%d, Z = %d.%d\n", 
+/*         printf("Accel: X = %d.%d, Y = %d.%d, Z = %d.%d\n", 
             accels[0]/1000,accels[0]%1000, 
             accels[1]/1000,accels[1]%1000,
-            accels[2]/1000,accels[2]%1000);
+            accels[2]/1000,accels[2]%1000); */
+
+        printf("Accel: X = %d, Y = %d, Z = %d\n", accels[0], accels[1], accels[2]);
 
         //closeRelay(CLOSE_PIN);
-        busy_wait_ms(1000);
+        busy_wait_ms(250);
         put_pixel(blue);
         //openRelay(OPEN_PIN);
         gpio_put(LED_PIN, 1);
         puts("Hello World\n");
-        busy_wait_ms(1000);
+        busy_wait_ms(250);
     }
 }
