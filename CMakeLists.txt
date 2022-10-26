@@ -11,6 +11,7 @@ add_executable(main
     source/Neopixel.c
     source/relay.c
     source/Adxl343.c
+    source/MFRC522.c
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet
@@ -21,5 +22,5 @@ pico_enable_stdio_uart(main 1)
 
 pico_add_extra_outputs(main)
 
-target_link_libraries(main PRIVATE pico_stdlib hardware_pio hardware_i2c)
+target_link_libraries(main PRIVATE pico_stdlib hardware_pio hardware_i2c hardware_spi)
 pico_add_extra_outputs(main)

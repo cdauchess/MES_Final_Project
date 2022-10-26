@@ -35,6 +35,7 @@ int main() {
     RFID_I2C_Init();
     accl_wakeup();
 
+    MFRC522_INIT();
 
 
     while(1) {

@@ -9,6 +9,9 @@
     "clocks.h": "c",
     "ws2812.pio.h": "c",
     "i2c.h": "c",
-    "Adxl343.h": "c"
-}
+    "Adxl343.h": "c",
+    "MFRC522.h": "c",
+    "spi.h": "c"
+},
+"cortex-debug.variableUseNaturalFormat": false
 }
