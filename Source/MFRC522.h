@@ -27,7 +27,7 @@
 #define WaterLevelReg   0x0B
 #define ControlReg      0x0C
 #define BitFramingReg   0x0D
-#define CoilReg         0x0E
+#define CollReg         0x0E
 
 //Page 1 Command
 #define ModeReg         0x11
@@ -72,6 +72,12 @@
 #define TestADCReg      0x3B
 
 
+	typedef struct {
+		uint8_t	    size;			// Number of bytes in the UID. 4, 7 or 10.
+		uint8_t		uidByte[10];
+		uint8_t		sak;			// The SAK (Select acknowledge) byte returned from the PICC after successful selection.
+	} Uid;
+
 
 uint8_t MFRC522_ReadReg(uint8_t RegAddr);
 void MFRC522_WriteReg(uint8_t RegAddr, uint8_t Data);
@@ -81,3 +87,7 @@ void MFRC522_INIT();
 
 void MFRC522_AntennaOn();
 void MFRC522_AntennaOff();
+
+uint8_t PICC_Select(	Uid *uid,			///< Pointer to Uid struct. Normally output, but can also be used to supply a known UID.
+						uint8_t validBits		///< The number of known UID bits supplied in *uid. Normally 0. If set you must also supply uid->size.
+						);
