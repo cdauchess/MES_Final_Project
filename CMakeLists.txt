@@ -11,7 +11,7 @@ add_executable(main
     source/Neopixel.c
     source/relay.c
     source/Adxl343.c
-    source/MFRC522_RP2040.c
+    source/MFRC522_RP2040.cpp
     source/MFRC522.cpp
 )
 

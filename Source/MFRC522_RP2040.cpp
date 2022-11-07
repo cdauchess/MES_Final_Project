@@ -19,7 +19,7 @@ uint8_t MFRC522_ReadReg(uint8_t RegAddr){
     spi_write_read_blocking(spi1, &txRegAddr, &readData, 1);
     txRegAddr = 0x00;
     spi_write_read_blocking(spi1, &txRegAddr, &readData, 1);
-    printf("Data Return: %00x \n", readData);
+    //printf("Data Return: %00x \n", readData);
     return readData;
 }
 
