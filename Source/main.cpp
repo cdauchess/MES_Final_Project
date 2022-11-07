@@ -13,6 +13,8 @@ const uint OPEN_PIN = 18;
 volatile uint initGlobal = 5;
 volatile uint nonInitGlobal;
 
+MFRC522 mfrc522(RFID_CS, RFID_RST);
+
 int main() {
     bi_decl(bi_program_description("PROJECT DESCRIPTION"));
     
@@ -32,16 +34,15 @@ int main() {
 
     relayInit(CLOSE_PIN, OPEN_PIN);
 
-    RFID_I2C_Init();
+    accl_I2C_Init();
     accl_wakeup();
 
-    MFRC522_INIT();
-
+    mfrc522.PCD_Init();
 
     while(1) {
         gpio_put(LED_PIN, 0);
         put_pixel(red);
-        accl_read(&accels);
+        accl_read(accels);
 
 /*         printf("Accel: X = %d.%d, Y = %d.%d, Z = %d.%d\n", 
             accels[0]/1000,accels[0]%1000, 

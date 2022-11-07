@@ -15,7 +15,7 @@
 //INT1: GPIO5
 
 //Function to initialize I2C
-int RFID_I2C_Init();
+int accl_I2C_Init();
 
 int accl_write_reg(uint8_t regAddr, uint8_t regData);
 

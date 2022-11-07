@@ -11,4 +11,5 @@
 #include "neopixel.h"
 #include "relay.h"
 #include "Adxl343.h"
+#include "MFRC522_RP2040.h"
 #include "MFRC522.h"

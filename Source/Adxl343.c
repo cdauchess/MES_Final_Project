@@ -11,7 +11,7 @@ const int acclBaud = 100000;
 
 
 
-int RFID_I2C_Init(){
+int accl_I2C_Init(){
     i2c_init(i2c1,acclBaud);
     gpio_set_function(sdaPin, GPIO_FUNC_I2C);
     gpio_set_function(sclPin, GPIO_FUNC_I2C);

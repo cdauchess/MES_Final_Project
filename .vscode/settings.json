@@ -10,8 +10,10 @@
     "ws2812.pio.h": "c",
     "i2c.h": "c",
     "Adxl343.h": "c",
-    "MFRC522.h": "c",
-    "spi.h": "c"
+    "MFRC522.h": "cpp",
+    "spi.h": "c",
+    "mfrc522_rp2040.h": "c",
+    "neopixel.h": "c"
 },
 "cortex-debug.variableUseNaturalFormat": false
 }

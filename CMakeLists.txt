@@ -7,11 +7,12 @@ project(main)
 pico_sdk_init()
 
 add_executable(main    
-    source/main.c
+    source/main.cpp
     source/Neopixel.c
     source/relay.c
     source/Adxl343.c
-    source/MFRC522.c
+    source/MFRC522_RP2040.c
+    source/MFRC522.cpp
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet
