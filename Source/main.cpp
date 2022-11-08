@@ -41,12 +41,13 @@ int main() {
 
     while(1) {
         if (mfrc522.PICC_IsNewCardPresent()) {
-            mfrc522.PICC_ReadCardSerial();
-            puts("UID:");
-            for (int i = 0; i<10; i++){
-                printf("%d", mfrc522.uid.uiduint8_t[i]);
-            }
-            puts("\n");   
+            if(mfrc522.PICC_ReadCardSerial()){
+                puts("UID:");
+                for (int i = 0; i<10; i++){
+                    printf("%d", mfrc522.uid.uiduint8_t[i]);
+                }
+                puts("\n");
+            }   
         }
 
         gpio_put(LED_PIN, 0);

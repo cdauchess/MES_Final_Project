@@ -37,7 +37,11 @@ void MFRC522_HW_INIT(){
     gpio_set_function(RFID_SCK, GPIO_FUNC_SPI);
     gpio_set_function(RFID_MOSI, GPIO_FUNC_SPI);
     gpio_set_function(RFID_MISO, GPIO_FUNC_SPI);
-    gpio_set_function(RFID_CS, GPIO_FUNC_SPI);
+    //gpio_set_function(RFID_CS, GPIO_FUNC_SPI);
+
+    gpio_init(RFID_CS);
+    gpio_set_dir(RFID_CS, GPIO_OUT);
+    gpio_put(RFID_CS, 1);
 
     //Reset the chip
     gpio_set_dir(RFID_RST,true);

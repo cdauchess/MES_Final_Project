@@ -57,7 +57,9 @@ void MFRC522::PCD_WriteRegister(	PCD_Register reg,	///< The register to write to
 	SPI.endTransaction(); // Stop using the SPI bus */
 
 	//Replace arduino write with my RP2040 reg write
+	gpio_put(_chipSelectPin, 0);
 	MFRC522_WriteReg(reg, value);
+	gpio_put(_chipSelectPin, 1);
 } // End PCD_WriteRegister()
 
 /**
@@ -71,13 +73,13 @@ void MFRC522::PCD_WriteRegister(	PCD_Register reg,	///< The register to write to
 								) {
 	uint8_t regAddr = reg;
 	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
-	//digitalWrite(_chipSelectPin, LOW);		// Select slave
+	gpio_put(_chipSelectPin, 0);		// Select slave
 	spi_write_blocking(spi1, &regAddr, 1 );						// MSB == 0 is for writing. LSB is not used in address. Datasheet section 8.1.2.3.
 	spi_write_blocking(spi1, values, count);
 /* 	for (uint8_t index = 0; index < count; index++) {
 		SPI.transfer(values[index]);
 	} */
-	//digitalWrite(_chipSelectPin, HIGH);		// Release slave again
+	gpio_put(_chipSelectPin, 1);		// Release slave again
 	//SPI.endTransaction(); // Stop using the SPI bus
 } // End PCD_WriteRegister()
 
@@ -94,7 +96,9 @@ uint8_t MFRC522::PCD_ReadRegister(	PCD_Register reg	///< The register to read fr
 	value = SPI.transfer(0);					// Read the value back. Send 0 to stop reading.
 	digitalWrite(_chipSelectPin, HIGH);			// Release slave again
 	SPI.endTransaction(); // Stop using the SPI bus */
+	gpio_put(_chipSelectPin, 0);
 	value = MFRC522_ReadReg(reg);
+	gpio_put(_chipSelectPin, 1);
 	return value;
 } // End PCD_ReadRegister()
 
@@ -119,6 +123,7 @@ void MFRC522::PCD_ReadRegister(	PCD_Register reg,	///< The register to read from
 	uint8_t value = 0;
 	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
 	//digitalWrite(_chipSelectPin, LOW);		// Select slave
+	gpio_put(_chipSelectPin, 0);
 	count--;								// One read is performed outside of the loop
 	spi_write_blocking(spi1, &regAddr, 1);					// Tell MFRC522 which address we want to read
 	if (rxAlign) {		// Only update bit positions rxAlign..7 in values[0]
@@ -137,7 +142,7 @@ void MFRC522::PCD_ReadRegister(	PCD_Register reg,	///< The register to read from
 	}
 	spi_read_blocking(spi1, 0, &value, 1);
 	values[index] = value;			// Read the final uint8_t. Send 0 to stop reading.
-	//digitalWrite(_chipSelectPin, HIGH);			// Release slave again
+	gpio_put(_chipSelectPin, 1);			// Release slave again
 	//SPI.endTransaction(); // Stop using the SPI bus
 } // End PCD_ReadRegister()
 
@@ -1981,6 +1986,6 @@ bool MFRC522::PICC_IsNewCardPresent() {
  * @return bool
  */
 bool MFRC522::PICC_ReadCardSerial() {
-	MFRC522::StatusCode result = PICC_Select(&uid);
+	volatile MFRC522::StatusCode result = PICC_Select(&uid);
 	return (result == STATUS_OK);
 } // End 
