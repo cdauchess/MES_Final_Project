@@ -8,7 +8,7 @@
 #include "hardware/clocks.h"
 #include "generated/ws2812.pio.h"
 
-#include "MFRC522_RP2040.h"
+//#include "MFRC522_RP2040.h"
 #include "MFRC522.h"
 
 extern "C" {

@@ -1,62 +1,44 @@
+
 #include "MFRC522_RP2040.h"
 
-/*
-Interrupt Pin: GPIO8
-RESET Pin: GPIO9
-SPI1
-SCK: GPIO10
-MOSI: GPIO11
-MISO: GPIO12
-RFID_CS: GPIO13
-*/
-
-
-uint8_t MFRC522_ReadReg(uint8_t RegAddr){
-
-    uint8_t txRegAddr = (1 << 7) | RegAddr; //Set MSB to 1 for a read
-    uint8_t readData = 0;
-
-    spi_write_read_blocking(spi1, &txRegAddr, &readData, 1);
-    txRegAddr = 0x00;
-    spi_write_read_blocking(spi1, &txRegAddr, &readData, 1);
-    //printf("Data Return: %00x \n", readData);
-    return readData;
+void digitalWrite(uint PIN, bool STATE){
+    gpio_put(PIN, STATE);
 }
 
-void MFRC522_WriteReg(uint8_t RegAddr, uint8_t Data){
-    uint8_t txRegAddr = RegAddr; //MSB is a 0 for a write
-    spi_write_blocking(spi1, &txRegAddr, 1);
-    spi_write_blocking(spi1, &Data, 1);
+bool digitalRead(uint PIN){
+    return gpio_get(PIN);
 }
 
-//TODO Multi byte writes and reads
-
-void MFRC522_HW_INIT(){
-    spi_init(spi1,500*1000);
-    //Set pin modes for SPI
-    gpio_set_function(RFID_SCK, GPIO_FUNC_SPI);
-    gpio_set_function(RFID_MOSI, GPIO_FUNC_SPI);
-    gpio_set_function(RFID_MISO, GPIO_FUNC_SPI);
-    //gpio_set_function(RFID_CS, GPIO_FUNC_SPI);
-
-    gpio_init(RFID_CS);
-    gpio_set_dir(RFID_CS, GPIO_OUT);
-    gpio_put(RFID_CS, 1);
-
-    //Reset the chip
-    gpio_set_dir(RFID_RST,true);
-    gpio_put(RFID_RST, 0);
-    busy_wait_us(2); //Requires 100ns of low
-    gpio_put(RFID_RST, 1);
-    busy_wait_us(70);//Requires 37.74us for oscillator startup
+uint32_t millis(){
+    return to_ms_since_boot(get_absolute_time());
 }
 
-/* void MFRC522_INIT(){
-    uint8_t Version = 0;
-    MFRC522_HW_INIT();
-    Version = MFRC522_ReadReg(VersionReg);
-    printf("MFRC522 Version: 0x%00x \n", Version);
-
-
+void yield(){
+    return;
 }
- */
+
+void delayMicroseconds(uint32_t delayTime){
+    busy_wait_us(delayTime);
+}
+
+void delay(uint32_t delayTime){
+    busy_wait_ms(delayTime);
+}
+
+void pinMode(uint PIN, bool MODE){
+    gpio_init(PIN);
+    gpio_set_dir(PIN, MODE);
+}
+
+uint8_t spi::transfer(uint8_t data){
+    uint8_t read;
+    spi_write_read_blocking(RFID_SPI, &data, &read, 1);
+    return read;
+}
+
+void spi::spiInit(uint baudrate, uint SCK_PIN, uint MOSI_PIN, uint MISO_PIN){
+    spi_init(RFID_SPI, baudrate);
+    gpio_set_function(SCK_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(MOSI_PIN, GPIO_FUNC_SPI);
+    gpio_set_function(MISO_PIN, GPIO_FUNC_SPI);
+}

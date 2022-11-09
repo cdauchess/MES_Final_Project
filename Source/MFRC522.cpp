@@ -5,8 +5,9 @@
 */
 
 //#include <Arduino.h>
-
 #include "MFRC522.h"
+
+spi SPI;
 
 /////////////////////////////////////////////////////////////////////////////////////
 // Functions for setting up the Arduino
@@ -14,19 +15,17 @@
 /**
  * Constructor.
  */
-//CDD Commented as I don't use this function
-/* MFRC522::MFRC522(): MFRC522(SS, UINT8_MAX) { // SS is defined in pins_arduino.h, UINT8_MAX means there is no connection from Arduino to MFRC522's reset and power down input
-} // End constructor */
+MFRC522::MFRC522(): MFRC522(RFID_CS, UINT8_MAX) { // SS is defined in pins_arduino.h, UINT8_MAX means there is no connection from Arduino to MFRC522's reset and power down input
+} // End constructor
 
 /**
  * Constructor.
  * Prepares the output pins.
  */
-//CDD Commented as I don't use this function
-/* MFRC522::MFRC522(	uint8_t resetPowerDownPin	///< Arduino pin connected to MFRC522's reset and power down input (Pin 6, NRSTPD, active low). If there is no connection from the CPU to NRSTPD, set this to UINT8_MAX. In this case, only soft reset will be used in PCD_Init().
-				): MFRC522(SS, resetPowerDownPin) { // SS is defined in pins_arduino.h
+MFRC522::MFRC522(	uint8_t resetPowerDownPin	///< Arduino pin connected to MFRC522's reset and power down input (Pin 6, NRSTPD, active low). If there is no connection from the CPU to NRSTPD, set this to UINT8_MAX. In this case, only soft reset will be used in PCD_Init().
+				): MFRC522(RFID_CS, resetPowerDownPin) { // SS is defined in pins_arduino.h
 } // End constructor
- */
+
 /**
  * Constructor.
  * Prepares the output pins.
@@ -49,37 +48,29 @@ MFRC522::MFRC522(	uint8_t chipSelectPin,		///< Arduino pin connected to MFRC522'
 void MFRC522::PCD_WriteRegister(	PCD_Register reg,	///< The register to write to. One of the PCD_Register enums.
 									uint8_t value			///< The value to write.
 								) {
-/* 	SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
+	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
 	digitalWrite(_chipSelectPin, LOW);		// Select slave
 	SPI.transfer(reg);						// MSB == 0 is for writing. LSB is not used in address. Datasheet section 8.1.2.3.
 	SPI.transfer(value);
 	digitalWrite(_chipSelectPin, HIGH);		// Release slave again
-	SPI.endTransaction(); // Stop using the SPI bus */
-
-	//Replace arduino write with my RP2040 reg write
-	gpio_put(_chipSelectPin, 0);
-	MFRC522_WriteReg(reg, value);
-	gpio_put(_chipSelectPin, 1);
+	//SPI.endTransaction(); // Stop using the SPI bus
 } // End PCD_WriteRegister()
 
 /**
  * Writes a number of uint8_ts to the specified register in the MFRC522 chip.
  * The interface is described in the datasheet section 8.1.2.
  */
-
 void MFRC522::PCD_WriteRegister(	PCD_Register reg,	///< The register to write to. One of the PCD_Register enums.
 									uint8_t count,			///< The number of uint8_ts to write to the register
 									uint8_t *values		///< The values to write. uint8_t array.
 								) {
-	uint8_t regAddr = reg;
 	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
-	gpio_put(_chipSelectPin, 0);		// Select slave
-	spi_write_blocking(spi1, &regAddr, 1 );						// MSB == 0 is for writing. LSB is not used in address. Datasheet section 8.1.2.3.
-	spi_write_blocking(spi1, values, count);
-/* 	for (uint8_t index = 0; index < count; index++) {
+	digitalWrite(_chipSelectPin, LOW);		// Select slave
+	SPI.transfer(reg);						// MSB == 0 is for writing. LSB is not used in address. Datasheet section 8.1.2.3.
+	for (uint8_t index = 0; index < count; index++) {
 		SPI.transfer(values[index]);
-	} */
-	gpio_put(_chipSelectPin, 1);		// Release slave again
+	}
+	digitalWrite(_chipSelectPin, HIGH);		// Release slave again
 	//SPI.endTransaction(); // Stop using the SPI bus
 } // End PCD_WriteRegister()
 
@@ -90,15 +81,12 @@ void MFRC522::PCD_WriteRegister(	PCD_Register reg,	///< The register to write to
 uint8_t MFRC522::PCD_ReadRegister(	PCD_Register reg	///< The register to read from. One of the PCD_Register enums.
 								) {
 	uint8_t value;
-/* 	SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
+	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
 	digitalWrite(_chipSelectPin, LOW);			// Select slave
 	SPI.transfer(0x80 | reg);					// MSB == 1 is for reading. LSB is not used in address. Datasheet section 8.1.2.3.
 	value = SPI.transfer(0);					// Read the value back. Send 0 to stop reading.
 	digitalWrite(_chipSelectPin, HIGH);			// Release slave again
-	SPI.endTransaction(); // Stop using the SPI bus */
-	gpio_put(_chipSelectPin, 0);
-	value = MFRC522_ReadReg(reg);
-	gpio_put(_chipSelectPin, 1);
+	//SPI.endTransaction(); // Stop using the SPI bus
 	return value;
 } // End PCD_ReadRegister()
 
@@ -106,7 +94,6 @@ uint8_t MFRC522::PCD_ReadRegister(	PCD_Register reg	///< The register to read fr
  * Reads a number of uint8_ts from the specified register in the MFRC522 chip.
  * The interface is described in the datasheet section 8.1.2.
  */
-
 void MFRC522::PCD_ReadRegister(	PCD_Register reg,	///< The register to read from. One of the PCD_Register enums.
 								uint8_t count,			///< The number of uint8_ts to read
 								uint8_t *values,		///< uint8_t array to store the values in.
@@ -115,34 +102,28 @@ void MFRC522::PCD_ReadRegister(	PCD_Register reg,	///< The register to read from
 	if (count == 0) {
 		return;
 	}
-
 	//Serial.print(F("Reading ")); 	Serial.print(count); Serial.println(F(" uint8_ts from register."));
 	uint8_t address = 0x80 | reg;				// MSB == 1 is for reading. LSB is not used in address. Datasheet section 8.1.2.3.
 	uint8_t index = 0;							// Index in values array.
-	uint8_t regAddr = reg;
-	uint8_t value = 0;
 	//SPI.beginTransaction(SPISettings(MFRC522_SPICLOCK, MSBFIRST, SPI_MODE0));	// Set the settings to work with SPI bus
-	//digitalWrite(_chipSelectPin, LOW);		// Select slave
-	gpio_put(_chipSelectPin, 0);
+	digitalWrite(_chipSelectPin, LOW);		// Select slave
 	count--;								// One read is performed outside of the loop
-	spi_write_blocking(spi1, &regAddr, 1);					// Tell MFRC522 which address we want to read
+	SPI.transfer(address);					// Tell MFRC522 which address we want to read
 	if (rxAlign) {		// Only update bit positions rxAlign..7 in values[0]
 		// Create bit mask for bit positions rxAlign..7
 		uint8_t mask = (0xFF << rxAlign) & 0xFF;
 		// Read value and tell that we want to read the same address again.
-		spi_read_blocking(spi1, regAddr, &value, 1);
+		uint8_t value = SPI.transfer(address);
 		// Apply mask to both current value of values[0] and the new data in value.
 		values[0] = (values[0] & ~mask) | (value & mask);
 		index++;
 	}
 	while (index < count) {
-		spi_read_blocking(spi1, regAddr, &value, 1);	// Read value and tell that we want to read the same address again.
-		values[index] = value;	// Read value and tell that we want to read the same address again.
+		values[index] = SPI.transfer(address);	// Read value and tell that we want to read the same address again.
 		index++;
 	}
-	spi_read_blocking(spi1, 0, &value, 1);
-	values[index] = value;			// Read the final uint8_t. Send 0 to stop reading.
-	gpio_put(_chipSelectPin, 1);			// Release slave again
+	values[index] = SPI.transfer(0);			// Read the final uint8_t. Send 0 to stop reading.
+	digitalWrite(_chipSelectPin, HIGH);			// Release slave again
 	//SPI.endTransaction(); // Stop using the SPI bus
 } // End PCD_ReadRegister()
 
@@ -174,7 +155,6 @@ void MFRC522::PCD_ClearRegisterBitMask(	PCD_Register reg,	///< The register to u
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-//TODO Make this function work
 MFRC522::StatusCode MFRC522::PCD_CalculateCRC(	uint8_t *data,		///< In: Pointer to the data to transfer to the FIFO for CRC calculation.
 												uint8_t length,	///< In: The number of uint8_ts to transfer.
 												uint8_t *result	///< Out: Pointer to result buffer. Result is written to result[0..1], low uint8_t first.
@@ -189,7 +169,7 @@ MFRC522::StatusCode MFRC522::PCD_CalculateCRC(	uint8_t *data,		///< In: Pointer 
 	// indicate that the CRC calculation is complete in a loop. If the
 	// calculation is not indicated as complete in ~90ms, then time out
 	// the operation.
-	const uint32_t deadline = to_ms_since_boot(get_absolute_time()) + 89;
+	const uint32_t deadline = millis() + 89;
 
 	do {
 		// DivIrqReg[7..0] bits are: Set2 reserved reserved MfinActIRq reserved CRCIRq reserved reserved
@@ -201,9 +181,9 @@ MFRC522::StatusCode MFRC522::PCD_CalculateCRC(	uint8_t *data,		///< In: Pointer 
 			result[1] = PCD_ReadRegister(CRCResultRegH);
 			return STATUS_OK;
 		}
-		//yield();
+		yield();
 	}
-	while (static_cast<uint32_t> (to_ms_since_boot(get_absolute_time())) < deadline);
+	while (static_cast<uint32_t> (millis()) < deadline);
 
 	// 89ms passed and nothing happened. Communication with the MFRC522 might be down.
 	return STATUS_TIMEOUT;
@@ -217,25 +197,25 @@ MFRC522::StatusCode MFRC522::PCD_CalculateCRC(	uint8_t *data,		///< In: Pointer 
 /**
  * Initializes the MFRC522 chip.
  */
-//TODO Make this function work.  Need to initialize
 void MFRC522::PCD_Init() {
 	bool hardReset = false;
-
+	SPI.spiInit(MFRC522_SPICLOCK,RFID_SCK, RFID_MOSI, RFID_MISO);
 	// Set the chipSelectPin as digital output, do not select the slave yet
-	MFRC522_HW_INIT();
+	pinMode(_chipSelectPin, OUTPUT);
+	digitalWrite(_chipSelectPin, HIGH);
 	
 	// If a valid pin number has been set, pull device out of power down / reset state.
 	if (_resetPowerDownPin != UNUSED_PIN) {
 		// First set the resetPowerDownPin as digital input, to check the MFRC522 power down mode.
-		gpio_set_dir(RFID_RST, false);
+		pinMode(_resetPowerDownPin, INPUT);
 	
-		if (gpio_get(RFID_RST) == 0) {	// The MFRC522 chip is in power down mode.
-			gpio_set_dir(RFID_RST, true);		// Now set the resetPowerDownPin as digital output.
-			gpio_put(RFID_RST, 0);		// Make sure we have a clean LOW state.
-			busy_wait_us(2);				// 8.8.1 Reset timing requirements says about 100ns. Let us be generous: 2μsl
-			gpio_put(RFID_RST, 1);		// Exit power down mode. This triggers a hard reset.
+		if (digitalRead(_resetPowerDownPin) == LOW) {	// The MFRC522 chip is in power down mode.
+			pinMode(_resetPowerDownPin, OUTPUT);		// Now set the resetPowerDownPin as digital output.
+			digitalWrite(_resetPowerDownPin, LOW);		// Make sure we have a clean LOW state.
+			delayMicroseconds(2);				// 8.8.1 Reset timing requirements says about 100ns. Let us be generous: 2μsl
+			digitalWrite(_resetPowerDownPin, HIGH);		// Exit power down mode. This triggers a hard reset.
 			// Section 8.8.2 in the datasheet says the oscillator start-up time is the start up time of the crystal + 37,74μs. Let us be generous: 50ms.
-			busy_wait_ms(50);
+			delay(50);
 			hardReset = true;
 		}
 	}
@@ -266,11 +246,10 @@ void MFRC522::PCD_Init() {
 /**
  * Initializes the MFRC522 chip.
  */
-//CDD Commented as I don't use this function
-/* void MFRC522::PCD_Init(	uint8_t resetPowerDownPin	///< Arduino pin connected to MFRC522's reset and power down input (Pin 6, NRSTPD, active low)
+void MFRC522::PCD_Init(	uint8_t resetPowerDownPin	///< Arduino pin connected to MFRC522's reset and power down input (Pin 6, NRSTPD, active low)
 					) {
 	PCD_Init(SS, resetPowerDownPin); // SS is defined in pins_arduino.h
-} // End PCD_Init() */
+} // End PCD_Init()
 
 /**
  * Initializes the MFRC522 chip.
@@ -295,7 +274,7 @@ void MFRC522::PCD_Reset() {
 	uint8_t count = 0;
 	do {
 		// Wait for the PowerDown bit in CommandReg to be cleared (max 3x50ms)
-		busy_wait_ms(50);
+		delay(50);
 	} while ((PCD_ReadRegister(CommandReg) & (1 << 4)) && (++count) < 3);
 } // End PCD_Reset()
 
@@ -346,7 +325,8 @@ void MFRC522::PCD_SetAntennaGain(uint8_t mask) {
  * 
  * @return Whether or not the test passed. Or false if no firmware reference is available.
  */
-//Commented because not used for UID read
+//CDD Commented
+
 /* bool MFRC522::PCD_PerformSelfTest() {
 	// This follows directly the steps outlined in 16.1.1
 	// 1. Perform a soft reset.
@@ -449,14 +429,14 @@ void MFRC522::PCD_SoftPowerUp(){
 	val &= ~(1<<4);// set PowerDown bit ( bit 4 ) to 0 
 	PCD_WriteRegister(CommandReg, val);//write new value to the command register
 	// wait until PowerDown bit is cleared (this indicates end of wake up procedure) 
-	const uint32_t timeout = (uint32_t)to_ms_since_boot(get_absolute_time()) + 500;// create timer for timeout (just in case) 
+	const uint32_t timeout = (uint32_t)millis() + 500;// create timer for timeout (just in case) 
 	
-	while(to_ms_since_boot(get_absolute_time())<=timeout){ // set timeout to 500 ms 
+	while(millis()<=timeout){ // set timeout to 500 ms 
 		val = PCD_ReadRegister(CommandReg);// Read state of the command register
 		if(!(val & (1<<4))){ // if powerdown bit is 0 
 			break;// wake up procedure is finished 
 		}
-		//yield();
+		yield();
 	}
 }
 
@@ -470,7 +450,6 @@ void MFRC522::PCD_SoftPowerUp(){
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-
 MFRC522::StatusCode MFRC522::PCD_TransceiveData(	uint8_t *sendData,		///< Pointer to the data to transfer to the FIFO.
 													uint8_t sendLen,		///< Number of uint8_ts to transfer to the FIFO.
 													uint8_t *backData,		///< nullptr or pointer to buffer if data should be read back after executing the command.
@@ -489,7 +468,6 @@ MFRC522::StatusCode MFRC522::PCD_TransceiveData(	uint8_t *sendData,		///< Pointe
  *
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-//TODO Make this function work
 MFRC522::StatusCode MFRC522::PCD_CommunicateWithPICC(	uint8_t command,		///< The command to execute. One of the PCD_Command enums.
 														uint8_t waitIRq,		///< The bits in the ComIrqReg register that signals successful completion of the command.
 														uint8_t *sendData,		///< Pointer to the data to transfer to the FIFO.
@@ -522,8 +500,7 @@ MFRC522::StatusCode MFRC522::PCD_CommunicateWithPICC(	uint8_t command,		///< The
 	// When they are set in the ComIrqReg register, then the command is
 	// considered complete. If the command is not indicated as complete in
 	// ~36ms, then consider the command as timed out.
-	//TODO: Get current time here in milliseconds
-	const uint32_t deadline = to_ms_since_boot(get_absolute_time()) + 36; 
+	const uint32_t deadline = millis() + 36;
 	bool completed = false;
 
 	do {
@@ -535,9 +512,9 @@ MFRC522::StatusCode MFRC522::PCD_CommunicateWithPICC(	uint8_t command,		///< The
 		if (n & 0x01) {						// Timer interrupt - nothing received in 25ms
 			return STATUS_TIMEOUT;
 		}
-		//yield();
+		yield();
 	}
-	while (static_cast<uint32_t> (to_ms_since_boot(get_absolute_time())) < deadline);
+	while (static_cast<uint32_t> (millis()) < deadline);
 
 	// 36ms and nothing happened. Communication with the MFRC522 might be down.
 	if (!completed) {
@@ -1046,8 +1023,7 @@ MFRC522::StatusCode MFRC522::MIFARE_Write(	uint8_t blockAddr, ///< MIFARE Classi
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-//CDD Commented out this as I don't use it
-/* MFRC522::StatusCode MFRC522::MIFARE_Ultralight_Write(	uint8_t page, 		///< The page (2-15) to write to.
+MFRC522::StatusCode MFRC522::MIFARE_Ultralight_Write(	uint8_t page, 		///< The page (2-15) to write to.
 														uint8_t *buffer,	///< The 4 uint8_ts to write to the PICC
 														uint8_t bufferSize	///< Buffer size, must be at least 4 uint8_ts. Exactly 4 uint8_ts are written.
 													) {
@@ -1062,7 +1038,7 @@ MFRC522::StatusCode MFRC522::MIFARE_Write(	uint8_t blockAddr, ///< MIFARE Classi
 	uint8_t cmdBuffer[6];
 	cmdBuffer[0] = PICC_CMD_UL_WRITE;
 	cmdBuffer[1] = page;
-	memcpy(&cmdBuffer[2], buffer, 4);
+	//memcpy(&cmdBuffer[2], buffer, 4);
 	
 	// Perform the write
 	result = PCD_MIFARE_Transceive(cmdBuffer, 6); // Adds CRC_A and checks that the response is MF_ACK.
@@ -1070,7 +1046,7 @@ MFRC522::StatusCode MFRC522::MIFARE_Write(	uint8_t blockAddr, ///< MIFARE Classi
 		return result;
 	}
 	return STATUS_OK;
-} // End MIFARE_Ultralight_Write() */
+} // End MIFARE_Ultralight_Write()
 
 /**
  * MIFARE Decrement subtracts the delta from the value of the addressed block, and stores the result in a volatile memory.
@@ -1279,8 +1255,7 @@ MFRC522::StatusCode MFRC522::PCD_NTAG216_AUTH(uint8_t* passWord, uint8_t pACK[])
  * 
  * @return STATUS_OK on success, STATUS_??? otherwise.
  */
-//CDD Commented as I don't use this function
-/* MFRC522::StatusCode MFRC522::PCD_MIFARE_Transceive(	uint8_t *sendData,		///< Pointer to the data to transfer to the FIFO. Do NOT include the CRC_A.
+MFRC522::StatusCode MFRC522::PCD_MIFARE_Transceive(	uint8_t *sendData,		///< Pointer to the data to transfer to the FIFO. Do NOT include the CRC_A.
 													uint8_t sendLen,		///< Number of uint8_ts in sendData.
 													bool acceptTimeout	///< True => A timeout is also success
 												) {
@@ -1293,7 +1268,7 @@ MFRC522::StatusCode MFRC522::PCD_NTAG216_AUTH(uint8_t* passWord, uint8_t pACK[])
 	}
 	
 	// Copy sendData[] to cmdBuffer[] and add CRC_A
-	memcpy(cmdBuffer, sendData, sendLen);
+	//memcpy(cmdBuffer, sendData, sendLen);
 	result = PCD_CalculateCRC(cmdBuffer, sendLen, &cmdBuffer[sendLen]);
 	if (result != STATUS_OK) { 
 		return result;
@@ -1319,14 +1294,13 @@ MFRC522::StatusCode MFRC522::PCD_NTAG216_AUTH(uint8_t* passWord, uint8_t pACK[])
 		return STATUS_MIFARE_NACK;
 	}
 	return STATUS_OK;
-} // End PCD_MIFARE_Transceive() */
+} // End PCD_MIFARE_Transceive()
 
 /**
  * Returns a __FlashStringHelper pointer to a status code name.
  * 
  * @return const __FlashStringHelper *
  */
-//CDD Commented as I don't use this function
 /* const __FlashStringHelper *MFRC522::GetStatusCodeName(MFRC522::StatusCode code	///< One of the StatusCode enums.
 										) {
 	switch (code) {
@@ -1341,8 +1315,8 @@ MFRC522::StatusCode MFRC522::PCD_NTAG216_AUTH(uint8_t* passWord, uint8_t pACK[])
 		case STATUS_MIFARE_NACK:	return F("A MIFARE PICC responded with NAK.");
 		default:					return F("Unknown error");
 	}
-} // End GetStatusCodeName() */
-
+} // End GetStatusCodeName()
+ */
 /**
  * Translates the SAK (Select Acknowledge) to a PICC type.
  * 
@@ -1375,7 +1349,6 @@ MFRC522::PICC_Type MFRC522::PICC_GetType(uint8_t sak		///< The SAK uint8_t retur
  * 
  * @return const __FlashStringHelper *
  */
-//CDD Commented as I don't use this function
 /* const __FlashStringHelper *MFRC522::PICC_GetTypeName(PICC_Type piccType	///< One of the PICC_Type enums.
 													) {
 	switch (piccType) {
@@ -1398,7 +1371,8 @@ MFRC522::PICC_Type MFRC522::PICC_GetType(uint8_t sak		///< The SAK uint8_t retur
  * Dumps debug info about the connected PCD to Serial.
  * Shows all known firmware versions
  */
-//CDD Commented as I don't use this function
+//CDD Commented
+
 /* void MFRC522::PCD_DumpVersionToSerial() {
 	// Get the MFRC522 firmware version
 	uint8_t v = PCD_ReadRegister(VersionReg);
@@ -1423,7 +1397,8 @@ MFRC522::PICC_Type MFRC522::PICC_GetType(uint8_t sak		///< The SAK uint8_t retur
  * On success the PICC is halted after dumping the data.
  * For MIFARE Classic the factory default key of 0xFFFFFFFFFFFF is tried.  
  */
-//CDD Commented as I don't use this function
+//CDD Commented
+
 /* void MFRC522::PICC_DumpToSerial(Uid *uid	///< Pointer to Uid struct returned from a successful PICC_Select().
 								) {
 	MIFARE_Key key;
@@ -1464,14 +1439,12 @@ MFRC522::PICC_Type MFRC522::PICC_GetType(uint8_t sak		///< The SAK uint8_t retur
 	
 	Serial.println();
 	PICC_HaltA(); // Already done if it was a MIFARE Classic PICC.
-} // End PICC_DumpToSerial()
+} // End PICC_DumpToSerial() */
 
 /**
  * Dumps card info (UID,SAK,Type) about the selected PICC to Serial.
  */
-//CDD Commented as I don't use this function
-/*
-void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct returned from a successful PICC_Select().
+/* void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct returned from a successful PICC_Select().
 									) {
 	// UID
 	Serial.print(F("Card UID:"));
@@ -1500,7 +1473,6 @@ void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct retur
  * Dumps memory contents of a MIFARE Classic PICC.
  * On success the PICC is halted after dumping the data.
  */
-//CDD Commented out because I don't use this
 /* void MFRC522::PICC_DumpMifareClassicToSerial(	Uid *uid,			///< Pointer to Uid struct returned from a successful PICC_Select().
 												PICC_Type piccType,	///< One of the PICC_Type enums.
 												MIFARE_Key *key		///< Key A used for all sectors.
@@ -1542,7 +1514,8 @@ void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct retur
  * Uses PCD_Authenticate(), MIFARE_Read() and PCD_StopCrypto1.
  * Always uses PICC_CMD_MF_AUTH_KEY_A because only Key A can always read the sector trailer access bits.
  */
-//CDD Commented out because I don't use this.
+//CDD Commented
+
 /* void MFRC522::PICC_DumpMifareClassicSectorToSerial(Uid *uid,			///< Pointer to Uid struct returned from a successful PICC_Select().
 													MIFARE_Key *key,	///< Key A for the sector.
 													uint8_t sector			///< The sector to dump, 0..39.
@@ -1691,7 +1664,8 @@ void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct retur
 /**
  * Dumps memory contents of a MIFARE Ultralight PICC.
  */
-//CDD Commented as I don't use this function
+//CDD Commented
+
 /* void MFRC522::PICC_DumpMifareUltralightToSerial() {
 	MFRC522::StatusCode status;
 	uint8_t uint8_tCount;
@@ -1734,7 +1708,9 @@ void MFRC522::PICC_DumpDetailsToSerial(Uid *uid	///< Pointer to Uid struct retur
 /**
  * Calculates the bit pattern needed for the specified access bits. In the [C1 C2 C3] tuples C1 is MSB (=4) and C3 is LSB (=1).
  */
-void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to uint8_t 6, 7 and 8 in the sector trailer. uint8_ts [0..2] will be set.
+//CDD Commented
+
+/* void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to uint8_t 6, 7 and 8 in the sector trailer. uint8_ts [0..2] will be set.
 									uint8_t g0,				///< Access bits [C1 C2 C3] for block 0 (for sectors 0-31) or blocks 0-4 (for sectors 32-39)
 									uint8_t g1,				///< Access bits C1 C2 C3] for block 1 (for sectors 0-31) or blocks 5-9 (for sectors 32-39)
 									uint8_t g2,				///< Access bits C1 C2 C3] for block 2 (for sectors 0-31) or blocks 10-14 (for sectors 32-39)
@@ -1748,7 +1724,7 @@ void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to ui
 	accessBitBuffer[1] =          c1 << 4 | (~c3 & 0xF);
 	accessBitBuffer[2] =          c3 << 4 | c2;
 } // End MIFARE_SetAccessBits()
-
+ */
 
 /**
  * Performs the "magic sequence" needed to get Chinese UID changeable
@@ -1761,7 +1737,8 @@ void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to ui
  * 
  * Of course with non-bricked devices, you're free to select them before calling this function.
  */
-//CDD Commented as I don't use this function
+//CDD Commented
+
 /* bool MFRC522::MIFARE_OpenUidBackdoor(bool logErrors) {
 	// Magic sequence:
 	// > 50 00 57 CD (HALT + CRC)
@@ -1774,9 +1751,9 @@ void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to ui
 	PICC_HaltA(); // 50 00 57 CD
 	
 	uint8_t cmd = 0x40;
-	uint8_t validBits = 7; /* Our command is only 7 bits. After receiving card response,
+	uint8_t validBits = 7; */ /* Our command is only 7 bits. After receiving card response,
 						  this will contain amount of valid response bits. */
-	/*uint8_t response[32]; // Card's response is written here
+	/* uint8_t response[32]; // Card's response is written here
 	uint8_t received = sizeof(response);
 	MFRC522::StatusCode status = PCD_TransceiveData(&cmd, (uint8_t)1, response, &received, &validBits, (uint8_t)0, false); // 40
 	if(status != STATUS_OK) {
@@ -1832,7 +1809,7 @@ void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to ui
  * It assumes a default KEY A of 0xFFFFFFFFFFFF.
  * Make sure to have selected the card before this function is called.
  */
-//CDD Commented as I don't use this function
+//CDD Commented
 /* bool MFRC522::MIFARE_SetUid(uint8_t *newUid, uint8_t uidSize, bool logErrors) {
 	
 	// UID + BCC uint8_t can not be larger than 16 together
@@ -1935,7 +1912,7 @@ void MFRC522::MIFARE_SetAccessBits(	uint8_t *accessBitBuffer,	///< Pointer to ui
 /**
  * Resets entire sector 0 to zeroes, so the card can be read again by readers.
  */
-//CDD Commented as I don't use this function
+//CDD Commented
 /* bool MFRC522::MIFARE_UnbrickUidSector(bool logErrors) {
 	MIFARE_OpenUidBackdoor(logErrors);
 	
@@ -1986,6 +1963,6 @@ bool MFRC522::PICC_IsNewCardPresent() {
  * @return bool
  */
 bool MFRC522::PICC_ReadCardSerial() {
-	volatile MFRC522::StatusCode result = PICC_Select(&uid);
+	MFRC522::StatusCode result = PICC_Select(&uid);
 	return (result == STATUS_OK);
 } // End 
