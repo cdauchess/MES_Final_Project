@@ -61,21 +61,24 @@ Currently a placeholder
 
 ## To Do Items
 This is likely to be an everchanging list
-- [ ] RFID Driver
-- [ ] Continue working with each peripheral independently to gain familiarity
+- [X] RFID Driver
+- [X] LED Driver
+- [ ] Button Driver
+- [X] Relay Output Driver
+- [ ] EEPROM Driver
+- [X] Accelerometer Driver
 - [ ] Bring everything together!
-- [ ] Many things to list here
-- [ ] Bonus: Custom PCB
+- [X] Bonus: Custom PCB
     - making progress here
     ![pcb schematic](/Images/CurrentPCBSchematic.png)
 
 
 ## Minimum Viable Project
-- [ ] Read an RFID Keytag
+- [X] Read an RFID Keytag
 - [ ] Compare RFID ID to authorized user database
-- [ ] Close a relay to enable the vehicle
+- [X] Close a relay to enable the vehicle
 - [ ] Have a method to add and remove users from the database
-- [ ] Use an LED to indicate status of the system
+- [X] Use an LED to indicate status of the system
 - [ ] Have a method to detect a stationary vehicle for a timeout
 
  I have all of the hardware intended to be used in breakout board form.  A custom PCB is currently in progress, but not neccesary to demonstrate complete function.  It mostly cleans up the spaghetti of bread board wiring. 
