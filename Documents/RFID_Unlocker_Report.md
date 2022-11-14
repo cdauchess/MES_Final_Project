@@ -15,6 +15,7 @@ I'm using the Raspberry Pi PICO development board for this project.  This has a 
 
 - RP2040
 - RFID: MFRC522 : SPI
+    - borrowed arduino library from [here](https://github.com/miguelbalboa/rfid)
 - Latching Relay : GPIO
 - WS2812B LED
     - Fun with colors!
