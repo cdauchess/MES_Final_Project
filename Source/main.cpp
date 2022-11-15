@@ -49,11 +49,20 @@ int main() {
 
     mfrc522.PCD_Init();
 
+    uint8_t testData [4] = {0xDE,0xAD,0xC0,0xDE};
+    uint8_t testReadData[4] = {0x00,0x00,0x00,0x00};
+
     uint8_t readData = 0;
     eepromByteWrite(0xCD, 0x15);
     busy_wait_ms(10);
     readData = eepromByteRead(0x15);
-    printf("EEPROM DATA: %X", readData);
+    printf("EEPROM DATA: %X \n", readData);
+
+    eepromPageWrite(testData, 0x50);
+    busy_wait_ms(10);
+    eepromPageRead( testReadData, 0x50,4);
+
+    printf("EEPROM PAGE DATA: %X%X%X%X \n",testReadData[0],testReadData[1],testReadData[2],testReadData[3]);
 
 
     while(1) {
