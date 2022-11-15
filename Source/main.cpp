@@ -15,10 +15,20 @@ volatile uint nonInitGlobal;
 
 MFRC522 mfrc522(RFID_CS, RFID_RST);
 
+uint32_t timerFlag = 0;
+
+bool timerCallback(repeating_timer_t *rt){
+    timerFlag = 1;
+    return 1;
+}
+
 int main() {
     bi_decl(bi_program_description("PROJECT DESCRIPTION"));
-    
+    repeating_timer_t timer;
     stdio_init_all();
+    ConsoleInit();
+    add_repeating_timer_ms(20, timerCallback, NULL, &timer);
+    
 
     uint32_t red = urgb_u32(0x05,0,0,0);
     uint32_t green = urgb_u32(0,0x05,0,0);
@@ -39,11 +49,22 @@ int main() {
 
     mfrc522.PCD_Init();
 
+    uint8_t readData = 0;
+    eepromByteWrite(0xCD, 0x15);
+    busy_wait_ms(10);
+    readData = eepromByteRead(0x15);
+    printf("EEPROM DATA: %X", readData);
+
+
     while(1) {
+        if( timerFlag == 1 ){
+            ConsoleProcess();
+            timerFlag = 0;
+        }        
         if (mfrc522.PICC_IsNewCardPresent()) {
             if(mfrc522.PICC_ReadCardSerial()){
                 puts("UID:");
-                for (int i = 0; i<10; i++){
+                for (int i = 0; i<mfrc522.uid.size; i++){
                     printf("%d", mfrc522.uid.uiduint8_t[i]);
                 }
                 puts("\n");

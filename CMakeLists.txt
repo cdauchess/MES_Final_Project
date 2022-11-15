@@ -13,6 +13,10 @@ add_executable(main
     source/Adxl343.c
     source/MFRC522_RP2040.cpp
     source/MFRC522.cpp
+    source/console.c
+    source/consoleCommands.c
+    source/consoleio.c
+    source/CAT24C32.c
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet

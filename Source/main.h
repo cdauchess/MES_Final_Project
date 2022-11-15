@@ -15,5 +15,6 @@ extern "C" {
     #include "Adxl343.h"
     #include "relay.h"
     #include "Neopixel.h"
-
+    #include "console.h"
+    #include "CAT24C32.h"
 }

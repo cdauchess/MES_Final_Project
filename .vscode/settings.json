@@ -13,7 +13,8 @@
     "MFRC522.h": "cpp",
     "spi.h": "c",
     "mfrc522_rp2040.h": "c",
-    "neopixel.h": "c"
+    "neopixel.h": "c",
+    "CAT24C32.h": "c"
 },
 "cortex-debug.variableUseNaturalFormat": true
 }
