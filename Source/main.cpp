@@ -24,7 +24,7 @@ bool timerCallback(repeating_timer_t *rt){
 }
 
 int main() {
-
+    systemStates currentState = vehicleOff;
     MFRC522 mfrc522(RFID_CS, RFID_RST);
     //authUsers[1].size = 4;
     users authUsers;
@@ -47,10 +47,49 @@ int main() {
 
     //Need to implement a method that checks if the card is still present to prevent repeated reads
     while(1) {
-        if( timerFlag == 1 ){
-            ConsoleProcess();
-            timerFlag = 0;
-        }        
+        switch(currentState){
+            case vehicleOff:
+                if(mfrc522.PICC_IsNewCardPresent()){
+                    if(mfrc522.PICC_ReadCardSerial()){
+                        currentState = cardPresented;
+                    }
+                }
+                break;
+            case cardPresented:
+                if(compareUIDs(authUsers, mfrc522)){
+                    currentState = Authorized;
+                }
+                else{currentState = notAuthorized;}
+                break;
+            case Authorized:
+                //Flash green LED
+                //Enable Relay
+                closeRelay(CLOSE_PIN);
+                break;
+            case notAuthorized:
+                //Flash red LED
+                //Disable Relay
+                openRelay(OPEN_PIN);
+                break;
+            case vehicleOn:
+                //If button is pressed, shutdown
+                //If authorized card is presented, shutdown
+                //Have some hysterisis in startup/shutdown cycles
+                
+                break;
+            case vehicleShutdown:
+
+                break;
+            case consoleMode:
+                if( timerFlag == 1 ){
+                    ConsoleProcess();
+                    timerFlag = 0;
+                }
+            //Exit if button is pressed
+                break;
+        }
+
+        
         if (mfrc522.PICC_IsNewCardPresent()) {
             if(mfrc522.PICC_ReadCardSerial()){
                 if(compareUIDs(authUsers, mfrc522))
@@ -99,11 +138,13 @@ void systemInit(repeating_timer consoleTimer, MFRC522 rfid){
     neopixel_init(PIN_TX);
     //Relay
     relayInit(CLOSE_PIN, OPEN_PIN);
+    openRelay(OPEN_PIN);
     //Accelerometer
     accl_I2C_Init();
     accl_wakeup();
     //RFID Reader
     rfid.PCD_Init();
+    
 }
 
 bool compareUIDs(users userDataBase, MFRC522 rfidData){

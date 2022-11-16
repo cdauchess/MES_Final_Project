@@ -30,6 +30,16 @@ typedef struct {
     Uid userList[100]; //Provisioning for 100 users currently.  
 }users;
 
+typedef enum {
+    vehicleOff,
+    cardPresented,
+    Authorized, //Vehicle startup
+    notAuthorized,
+    vehicleOn,
+    vehicleShutdown,
+    consoleMode
+}systemStates;
+
 void systemInit(repeating_timer consoleTimer, MFRC522 rfid);
 
 bool compareUIDs(users userDataBase, MFRC522 rfidData);
