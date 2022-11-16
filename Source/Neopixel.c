@@ -1,8 +1,8 @@
 #include "Neopixel.h"
 
 
-void neopixel_init(uint PIN_TX){
-
+void neopixel_init(uint PIN_TX){ 
+    
     PIO pio = pio0;
     int sm = 0;
     uint offset = pio_add_program(pio, &ws2812_program);

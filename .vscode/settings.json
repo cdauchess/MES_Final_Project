@@ -14,7 +14,9 @@
     "spi.h": "c",
     "mfrc522_rp2040.h": "c",
     "neopixel.h": "c",
-    "CAT24C32.h": "c"
+    "CAT24C32.h": "c",
+    "cstdio": "cpp",
+    "pio.h": "c"
 },
 "cortex-debug.variableUseNaturalFormat": true
 }
