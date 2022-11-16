@@ -26,8 +26,8 @@ typedef struct {
 } Uid;
 
 typedef struct {
-    uint16_t numUsers;
-    Uid userList[100]; //Provisioning for 100 users currently.  
+    uint8_t numUsers;
+    Uid userList[256]; //Provisioning for 100 users currently.  
 }users;
 
 typedef enum {
@@ -43,3 +43,7 @@ typedef enum {
 void systemInit(repeating_timer consoleTimer, MFRC522 rfid);
 
 bool compareUIDs(users userDataBase, MFRC522 rfidData);
+
+//See EEPROM Memory map for info on how data is stored
+void writeDatabase(users userDataBase);
+users readDatabase();

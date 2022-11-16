@@ -28,8 +28,9 @@ int main() {
     MFRC522 mfrc522(RFID_CS, RFID_RST);
     //authUsers[1].size = 4;
     users authUsers;
-    authUsers.numUsers = 1;
+    authUsers.numUsers = 2;
     authUsers.userList[0] = {4, {0x33, 0x0c, 0x24, 0x94}};
+    authUsers.userList[1] = {4, {0xDE, 0xAD, 0xC0, 0xDE}};
 
    //Base colors, low intensity 
     const uint32_t red = urgb_u32(0x05,0,0,0);
@@ -44,6 +45,8 @@ int main() {
     int16_t accels[3];
 
     systemInit(timer, mfrc522);
+
+    writeDatabase(authUsers);
 
     //Need to implement a method that checks if the card is still present to prevent repeated reads
     while(1) {
@@ -157,4 +160,32 @@ bool compareUIDs(users userDataBase, MFRC522 rfidData){
         }
     }
     return false; //Otherwise the user is not authorized
+}
+
+void writeDatabase(users userDatabase){
+    uint arrElements = (userDatabase.numUsers*4) + 1;
+    uint8_t writeData[arrElements];
+    writeData[0] = userDatabase.numUsers; //The first element is always the number of valid users
+    for(int i = 0; i<userDatabase.numUsers; i++){
+        for(int n = 0; n<4; n++){ //Each user UID is 4 bytes.
+            //Write Data index explanation:Offset by 1 due to first element being the number of users
+            //i*4: each user is 4 bytes
+            //+n: data is sent byte by byte to the EEPROM
+            writeData[i*4+1+n] = userDatabase.userList[i].uiduint8_t[n];
+        }
+    }
+    if(arrElements > 32){ //A single page write can be no larger than 32 bytes
+        uint writeNum = (arrElements/32) + 1;
+        uint8_t txBuffer[32];
+        uint16_t startAddress;
+        for(int i = 0; i<arrElements; i++){
+            startAddress = i*32;
+            for(int n = 0; n<32; n++){
+                txBuffer[n] = writeData[(i*32)+n];
+            }
+            eepromPageWrite(txBuffer, startAddress);
+        }
+    }
+    else{eepromPageWrite(writeData, 0);}
+    busy_wait_ms(1);
 }
