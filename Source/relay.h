@@ -7,7 +7,7 @@
 #include "pico/stdlib.h"
 #include "hardware/gpio.h"
 
-#define COIL_DELAY 20 //delay in ms to hold the pin high to set the coil
+#define COIL_DELAY 50 //delay in ms to hold the pin high to set the coil
 
 alarm_callback_t closeTimerCallback(alarm_id_t id, void*user_data);
 alarm_callback_t openTimerCallback(alarm_id_t id, void*user_data);

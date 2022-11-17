@@ -20,10 +20,16 @@ absolute_time_t prevEdgeTime;
 
 
 
-uint32_t timerFlag = 0;
+uint8_t timerFlag = 0;
+uint8_t pixelFlag = 0;
 
 bool timerCallback(repeating_timer_t *rt){
     timerFlag = 1;
+    return 1;
+}
+
+bool pixelCallback(repeating_timer_t *rt){
+    pixelFlag = 1;
     return 1;
 }
 
@@ -40,11 +46,17 @@ void buttonISR(uint gpio, uint32_t events){
     }
 }
 
+
 int main() {
     //Button Setup
     gpio_set_irq_enabled_with_callback(BUTTON_PIN,GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &buttonISR);
     volatile uint32_t currentTime = to_ms_since_boot(get_absolute_time());
     uint Button_Flag = 0;
+
+    repeating_timer_t pixelTimer;
+    add_repeating_timer_ms(100,pixelCallback, NULL, &pixelTimer);
+    uint8_t flashCount = 0;
+    uint8_t pixelStatus = 0;
 
     systemStates currentState = vehicleOff;
     MFRC522 mfrc522(RFID_CS, RFID_RST);
@@ -55,9 +67,10 @@ int main() {
     authUsers.userList[1] = {4, {0xDE, 0xAD, 0xC0, 0xDE}};
 
    //Base colors, low intensity 
-    const uint32_t red = urgb_u32(0x05,0,0,0);
-    const uint32_t green = urgb_u32(0,0x05,0,0);
-    const uint32_t blue = urgb_u32(0,0,0x05,0);
+    const uint32_t red = urgb_u32(1*BRIGHTNESS,0,0,0);
+    const uint32_t green = urgb_u32(0,1*BRIGHTNESS,0,0);
+    const uint32_t blue = urgb_u32(0,0,1*BRIGHTNESS,0);
+    const uint32_t white = urgb_u32(0,0,0,1*BRIGHTNESS);
 
     repeating_timer_t timer;
     stdio_init_all();
@@ -72,11 +85,15 @@ int main() {
     busy_wait_ms(5);
     users TestRead;
     TestRead = readDatabase();
+    put_pixel(red);
+    openRelay(OPEN_PIN);
 
     //Need to implement a method that checks if the card is still present to prevent repeated reads
     while(1) {
         switch(currentState){
             case vehicleOff:
+                //put_pixel(red);
+                
                 if(mfrc522.PICC_IsNewCardPresent()){
                     if(mfrc522.PICC_ReadCardSerial()){
                         currentState = cardPresented;
@@ -95,23 +112,48 @@ int main() {
                 else{currentState = notAuthorized;}
                 break;
             case Authorized:
+                if(pixelFlag && !pixelStatus){
+                    put_pixel(green);
+                    pixelFlag = 0;
+                    pixelStatus = 1;
+                    flashCount++;
+                }
+                if(pixelFlag && pixelStatus){
+                    put_pixel(0);
+                    pixelFlag = 0;
+                    pixelStatus = 0;                    
+                }
+                if(flashCount > FlASHES){
+                    //put_pixel(green);
+                    currentState = vehicleOn;
+                    flashCount = 0;
+                    pixelStatus = 1;
+                    closeRelay(CLOSE_PIN);
+                }
+
                 //Flash green LED
                 //Enable Relay
-                closeRelay(CLOSE_PIN);
+                
                 break;
             case notAuthorized:
                 //Flash red LED
                 //Disable Relay
-                openRelay(OPEN_PIN);
+                put_pixel(white);
+                currentState = vehicleOff;
                 break;
             case vehicleOn:
                 //If button is pressed, shutdown
                 //If authorized card is presented, shutdown
                 //Have some hysterisis in startup/shutdown cycles
-                
+                if(Button_Flag == 1){
+                    currentState = vehicleShutdown;
+                    Button_Flag = 0;
+                }                
                 break;
             case vehicleShutdown:
-
+                openRelay(OPEN_PIN);
+                put_pixel(red);
+                currentState = vehicleOff;
                 break;
             case consoleMode:
                 if( timerFlag == 1 ){
@@ -127,7 +169,7 @@ int main() {
         }
 
         
-        if (mfrc522.PICC_IsNewCardPresent()) {
+/*         if (mfrc522.PICC_IsNewCardPresent()) {
             if(mfrc522.PICC_ReadCardSerial()){
                 if(compareUIDs(authUsers, mfrc522))
                 {
@@ -140,26 +182,21 @@ int main() {
                 }
                 puts("\n");
             }   
-        }
+        } */
 
-        gpio_put(LED_PIN, 0);
-        put_pixel(red);
+        // gpio_put(LED_PIN, 0);
+        // put_pixel(red);
         accl_read(accels);
 
-/*         printf("Accel: X = %d.%d, Y = %d.%d, Z = %d.%d\n", 
-            accels[0]/1000,accels[0]%1000, 
-            accels[1]/1000,accels[1]%1000,
-            accels[2]/1000,accels[2]%1000); */
-
-        //printf("Accel: X = %d, Y = %d, Z = %d\n", accels[0], accels[1], accels[2]);
-
         //closeRelay(CLOSE_PIN);
-        busy_wait_ms(20);
-        put_pixel(blue);
-        //openRelay(OPEN_PIN);
-        //gpio_put(LED_PIN, 1);
-        //puts("Hello World\n");
-        busy_wait_ms(20);
+        // busy_wait_ms(20);
+        // put_pixel(blue);
+        // //openRelay(OPEN_PIN);
+        // //gpio_put(LED_PIN, 1);
+        // //puts("Hello World\n");
+        // busy_wait_ms(20);
+
+        //busy_wait_ms(1);
 
         //Check if button has been presed
         currentTime = to_ms_since_boot(get_absolute_time());

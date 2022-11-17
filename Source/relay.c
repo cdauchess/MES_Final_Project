@@ -22,9 +22,11 @@ void relayInit(uint closePin, uint openPin){
 void closeRelay(uint closePin){
     gpio_put(closePin, 1);
     add_alarm_in_ms(COIL_DELAY, closeTimerCallback, NULL, true);
+    return;
 }
 
 void openRelay(uint openPin){
     gpio_put(openPin, 1);
-    add_alarm_in_ms(COIL_DELAY, openTimerCallback, NULL, true);    
+    add_alarm_in_ms(COIL_DELAY, openTimerCallback, NULL, true);  
+    return;  
 }

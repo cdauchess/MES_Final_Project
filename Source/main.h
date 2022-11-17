@@ -16,6 +16,10 @@
 #define FALLING_EDGE 2
 #define BUTTON_DEB_TIME 5 //Button debounce time in ms
 
+//LED Settings
+#define FlASHES 3
+#define BRIGHTNESS 0x02
+
 extern "C" {
     #include "Adxl343.h"
     #include "relay.h"
