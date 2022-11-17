@@ -10,6 +10,12 @@
 
 #include "MFRC522.h" //Adapted from arduino...should add a link to github repo here
 
+#define totalNumUsers 256
+
+#define RISING_EDGE 1
+#define FALLING_EDGE 2
+#define BUTTON_DEB_TIME 5 //Button debounce time in ms
+
 extern "C" {
     #include "Adxl343.h"
     #include "relay.h"
@@ -27,7 +33,7 @@ typedef struct {
 
 typedef struct {
     uint8_t numUsers;
-    Uid userList[256]; //Provisioning for 100 users currently.  
+    Uid userList[totalNumUsers]; //Provisioning for 100 users currently.  
 }users;
 
 typedef enum {
@@ -41,6 +47,7 @@ typedef enum {
 }systemStates;
 
 void systemInit(repeating_timer consoleTimer, MFRC522 rfid);
+void BUTTON_INIT();
 
 bool compareUIDs(users userDataBase, MFRC522 rfidData);
 

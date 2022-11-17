@@ -7,10 +7,12 @@
 //		3. Implement the function, using ConsoleReceiveParam<Type> to get the parameters from the buffer.
 
 #include <string.h>
+#include <stdio.h>
 #include "consoleCommands.h"
 #include "console.h"
 #include "consoleIo.h"
 #include "version.h"
+#include "Adxl343.h"
 
 #define IGNORE_UNUSED_VARIABLE(x)     if ( &x == &x ) {}
 
@@ -120,7 +122,15 @@ static eCommandResult_T ConsoleCommandRelay(const char buffer[])
 
 static eCommandResult_T ConsoleCommandAccel(const char buffer[])
 {
+	int16_t accels[3];
+	accl_read(accels);
+/* 	printf("Accel: X = %d.%3d, Y = %d.%3d, Z = %d.%3d\n", 
+            accels[0]/1000,accels[0]%1000, 
+            accels[1]/1000,accels[1]%1000,
+            accels[2]/1000,accels[2]%1000); */
+	printf("Accel: X = %dmg, Y = %dmg, Z = %dmg\n", accels[0], accels[1], accels[2]);
 	ConsoleIoSendString("Accel Timer:");
+
 	//Show relay status here
 }
 

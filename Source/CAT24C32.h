@@ -10,7 +10,7 @@
 int eepromByteWrite(uint8_t wByte, uint16_t wAddr);
 
 //Page Write
-int eepromPageWrite(uint8_t wBytes [], uint16_t wAddr);
+int eepromPageWrite(uint8_t wBytes [], uint16_t wAddr, uint8_t wLength);
 
 //Byte Read
 uint8_t eepromByteRead(uint16_t rAddr);

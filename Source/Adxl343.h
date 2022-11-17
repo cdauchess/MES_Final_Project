@@ -1,5 +1,10 @@
+#ifndef ADXL343_H
+#define ADXL343_H 
+
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
+
+
 
 #define ACCL_ADDR 0x53
 
@@ -22,3 +27,5 @@ int accl_write_reg(uint8_t regAddr, uint8_t regData);
 int accl_wakeup();
 
 int accl_read(int16_t accel[3]);
+
+#endif //ADXL343_H

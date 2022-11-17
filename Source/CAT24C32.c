@@ -10,9 +10,9 @@ int eepromByteWrite(uint8_t wByte, uint16_t wAddr){
 }
 
 //Page Write
-int eepromPageWrite(uint8_t wBytes [], uint16_t wAddr){
+int eepromPageWrite(uint8_t wBytes [], uint16_t wAddr, uint8_t wLength){
     //Send two address bytes followed by the sequential data bytes in a single transaction.
-    uint16_t totalLength = 2 + sizeof(wBytes);
+    uint16_t totalLength = 2 + wLength;
     uint8_t dataToSend[totalLength];
     //Fill the first two bytes with the starting address of data to write
     dataToSend[0] = (wAddr >> 8) & 0xff;

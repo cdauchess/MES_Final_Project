@@ -5,12 +5,16 @@
 */
 #include "main.h"
 
-uint LED_PIN = 25; //Onboard RP2040 LED
-uint PIN_TX = 15; //Neopixel Pin
+//Hardware Definitions
+const uint LED_PIN = 25; //Onboard RP2040 LED
+const uint PIN_TX = 15; //Neopixel Pin
+const uint BUTTON_PIN = 14; //GPIO For button input
 const uint CLOSE_PIN = 19; //Relay open pin
 const uint OPEN_PIN = 18; //Relay close pin
 
-
+//Button ISR Flag(s)
+uint buttonEdge = 0; //1 for rising, 2 for falling
+absolute_time_t prevEdgeTime;
 
 //Card: 33C2494
 
@@ -23,7 +27,25 @@ bool timerCallback(repeating_timer_t *rt){
     return 1;
 }
 
+void buttonISR(uint gpio, uint32_t events){
+    if(gpio == BUTTON_PIN && events == GPIO_IRQ_EDGE_RISE){
+      //Button_Flag = 1;
+      prevEdgeTime = get_absolute_time();
+      buttonEdge = RISING_EDGE;
+      //buttonAlarm = add_alarm_in_ms(40, &debounceTimer, NULL ,true); 
+    }
+    else if(gpio == BUTTON_PIN && events == GPIO_IRQ_EDGE_FALL){
+        prevEdgeTime = get_absolute_time();
+        buttonEdge = FALLING_EDGE;
+    }
+}
+
 int main() {
+    //Button Setup
+    gpio_set_irq_enabled_with_callback(BUTTON_PIN,GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &buttonISR);
+    volatile uint32_t currentTime = to_ms_since_boot(get_absolute_time());
+    uint Button_Flag = 0;
+
     systemStates currentState = vehicleOff;
     MFRC522 mfrc522(RFID_CS, RFID_RST);
     //authUsers[1].size = 4;
@@ -47,6 +69,9 @@ int main() {
     systemInit(timer, mfrc522);
 
     writeDatabase(authUsers);
+    busy_wait_ms(5);
+    users TestRead;
+    TestRead = readDatabase();
 
     //Need to implement a method that checks if the card is still present to prevent repeated reads
     while(1) {
@@ -56,6 +81,11 @@ int main() {
                     if(mfrc522.PICC_ReadCardSerial()){
                         currentState = cardPresented;
                     }
+                }
+
+                if(Button_Flag == 1){
+                    currentState = consoleMode;
+                    Button_Flag = 0;
                 }
                 break;
             case cardPresented:
@@ -88,7 +118,11 @@ int main() {
                     ConsoleProcess();
                     timerFlag = 0;
                 }
-            //Exit if button is pressed
+                //Exit if button is pressed
+                if(Button_Flag == 1){
+                    currentState = vehicleOff;
+                    Button_Flag = 0;
+                }
                 break;
         }
 
@@ -126,6 +160,13 @@ int main() {
         //gpio_put(LED_PIN, 1);
         //puts("Hello World\n");
         busy_wait_ms(20);
+
+        //Check if button has been presed
+        currentTime = to_ms_since_boot(get_absolute_time());
+        if(buttonEdge == RISING_EDGE && (currentTime-to_ms_since_boot(prevEdgeTime)) > BUTTON_DEB_TIME){
+            Button_Flag = 1;
+            buttonEdge = 0;
+        }
     }
     return 0;
 }
@@ -148,6 +189,12 @@ void systemInit(repeating_timer consoleTimer, MFRC522 rfid){
     //RFID Reader
     rfid.PCD_Init();
     
+}
+
+void BUTTON_INIT(){
+    gpio_init(BUTTON_PIN);
+    gpio_set_dir(BUTTON_PIN, GPIO_IN);
+    gpio_pull_down(BUTTON_PIN);
 }
 
 bool compareUIDs(users userDataBase, MFRC522 rfidData){
@@ -183,9 +230,28 @@ void writeDatabase(users userDatabase){
             for(int n = 0; n<32; n++){
                 txBuffer[n] = writeData[(i*32)+n];
             }
-            eepromPageWrite(txBuffer, startAddress);
+            eepromPageWrite(txBuffer, startAddress, sizeof(txBuffer));
         }
     }
-    else{eepromPageWrite(writeData, 0);}
+    else{
+        eepromPageWrite(writeData, 0, sizeof(writeData));
+    }
     busy_wait_ms(1);
+}
+
+users readDatabase(){
+    users eepromData;
+    eepromData.numUsers = eepromByteRead(0); //user count is stored in the first byte
+
+
+    uint8_t eepromPageData[totalNumUsers*4]; //4 bytes per user
+    eepromPageRead(eepromPageData,1,4*eepromData.numUsers);
+
+    for(int i = 0; i<eepromData.numUsers; i++){
+        eepromData.userList[i].size = 4;
+        for(int n = 0; n<4; n++){
+            eepromData.userList[i].uiduint8_t[n] = eepromPageData[((i*4)+n)];
+        }
+    }
+    return eepromData;
 }
