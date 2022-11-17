@@ -122,13 +122,13 @@ static eCommandResult_T ConsoleCommandRelay(const char buffer[])
 
 static eCommandResult_T ConsoleCommandAccel(const char buffer[])
 {
-	int16_t accels[3];
-	accl_read(accels);
+	accels accelRes;
+	accelRes = accl_read();
 /* 	printf("Accel: X = %d.%3d, Y = %d.%3d, Z = %d.%3d\n", 
             accels[0]/1000,accels[0]%1000, 
             accels[1]/1000,accels[1]%1000,
             accels[2]/1000,accels[2]%1000); */
-	printf("Accel: X = %dmg, Y = %dmg, Z = %dmg\n", accels[0], accels[1], accels[2]);
+	printf("Accel: X = %dmg, Y = %dmg, Z = %dmg\n", accelRes.X, accelRes.Y, accelRes.Z);
 	ConsoleIoSendString("Accel Timer:");
 
 	//Show relay status here

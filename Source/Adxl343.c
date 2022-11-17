@@ -54,19 +54,28 @@ int accl_wakeup(){
 
 //0x32 - 0x37 are the data registers
 //0:X, 1:Y, 2:Z
-int accl_read(int16_t accel[3]){
+accels accl_read(){
+    accels tempAccel;
     uint8_t dataStart = 0x32;
     uint8_t buffer[6];
+    float scaleFactor = 3.9;
     i2c_write_blocking(i2c1,ACCL_ADDR,&dataStart,1,true);
     i2c_read_blocking(i2c1, ACCL_ADDR, buffer, 6, false);
 
     //Convert to milli G.  This should allow for decent display resolution while not working with floats.
     //Comes from ADXL343 as 3.9 mg/bit
     int tempVal;
-    for (int i = 0; i < 3; i++) {
-        accel[i] = (buffer[i * 2 + 1] << 8 | buffer[(i * 2)]);
-        accel[i] *= 3.9; //Scale output 3.9 mg/bit
-    }
+    tempAccel.X = buffer[1] << 8 | buffer[0];
+    tempAccel.X *= scaleFactor;
+    tempAccel.Y = buffer[3] << 8 | buffer[2];
+    tempAccel.Y *= scaleFactor;
+    tempAccel.Z = buffer[5] << 8 | buffer[4];
+    tempAccel.Z *=scaleFactor;
+
+    // for (int i = 0; i < 3; i++) {
+    //     accel[i] = (buffer[i * 2 + 1] << 8 | buffer[(i * 2)]);
+    //     accel[i] *= 3.9; //Scale output 3.9 mg/bit
+    // }
     
-    return 0;
+    return tempAccel;
 }

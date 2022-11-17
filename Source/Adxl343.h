@@ -19,6 +19,13 @@
 //INT2: GPIO 4
 //INT1: GPIO5
 
+typedef struct{
+    int16_t X;
+    int16_t Y;
+    int16_t Z;
+} accels;
+
+
 //Function to initialize I2C
 int accl_I2C_Init();
 
@@ -26,6 +33,6 @@ int accl_write_reg(uint8_t regAddr, uint8_t regData);
 
 int accl_wakeup();
 
-int accl_read(int16_t accel[3]);
+accels accl_read();
 
 #endif //ADXL343_H

@@ -77,7 +77,7 @@ int main() {
     ConsoleInit();
     add_repeating_timer_ms(20, timerCallback, NULL, &timer);
 
-    int16_t accels[3];
+    accels accelRes;
 
     systemInit(timer, mfrc522);
 
@@ -186,7 +186,7 @@ int main() {
 
         // gpio_put(LED_PIN, 0);
         // put_pixel(red);
-        accl_read(accels);
+        accelRes = accl_read();
 
         //closeRelay(CLOSE_PIN);
         // busy_wait_ms(20);
