@@ -5,6 +5,12 @@
 */
 #include "main.h"
 
+//LED GUIDE:
+//RED: Vehicle Off
+//GREEN: Vehcle On/Authorized
+//BLUE: Console Mode
+//WHITE: Not authorized
+
 //Hardware Definitions
 const uint LED_PIN = 25; //Onboard RP2040 LED
 const uint PIN_TX = 15; //Neopixel Pin
@@ -18,6 +24,7 @@ absolute_time_t prevEdgeTime;
 
 //Card: 33C2494
 
+uint8_t exitConsole = 0;
 
 
 uint8_t timerFlag = 0;
@@ -86,7 +93,7 @@ int main() {
 
     repeating_timer_t timer;
     stdio_init_all();
-    ConsoleInit();
+    //ConsoleInit();
     add_repeating_timer_ms(20, timerCallback, NULL, &timer);
 
     
@@ -115,6 +122,8 @@ int main() {
                 if(Button_Flag == 1){
                     currentState = consoleMode;
                     Button_Flag = 0;
+                    put_pixel(blue);
+                    ConsoleInit();
                 }
                 break;
             case cardPresented:
@@ -180,6 +189,12 @@ int main() {
                 if(Button_Flag == 1){
                     currentState = vehicleOff;
                     Button_Flag = 0;
+                    put_pixel(red);
+                }
+                if(exitConsole == 1){
+                    currentState = vehicleOff;
+                    put_pixel(red);
+                    exitConsole = 0;
                 }
                 break;
         } //End currentState switch statement

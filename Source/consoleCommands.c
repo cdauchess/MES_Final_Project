@@ -14,6 +14,8 @@
 #include "version.h"
 #include "Adxl343.h"
 
+extern uint8_t exitConsole;
+
 #define IGNORE_UNUSED_VARIABLE(x)     if ( &x == &x ) {}
 
 static eCommandResult_T ConsoleCommandComment(const char buffer[]);
@@ -24,6 +26,7 @@ static eCommandResult_T ConsoleCommandParamExampleHexUint16(const char buffer[])
 static eCommandResult_T ConsoleCommandUsers(const char buffer[]);
 static eCommandResult_T ConsoleCommandRelay(const char buffer[]);
 static eCommandResult_T ConsoleCommandAccel(const char buffer[]);
+static eCommandResult_T ConsoleCommandExit(const char buffer[]);
 
 static const sConsoleCommandTable_T mConsoleCommandTable[] =
 {
@@ -34,7 +37,8 @@ static const sConsoleCommandTable_T mConsoleCommandTable[] =
     {"u16h", &ConsoleCommandParamExampleHexUint16, HELP("How to get a hex u16 from the params list: u16h aB12")},
 	{"users", &ConsoleCommandUsers, HELP("Show current list of authorized users and admins")},
 	{"relay", &ConsoleCommandRelay, HELP("Show the current status of the output relay")},
-	{"accelTimer", &ConsoleCommandAccel, HELP("Show current value of the inactivity timer")},
+	{"accel", &ConsoleCommandAccel, HELP("Show the current values from the accelerometer")},
+	{"exit", &ConsoleCommandExit, HELP("Exit the console and return to normal operation")},
 
 	CONSOLE_COMMAND_TABLE_END // must be LAST
 };
@@ -110,28 +114,36 @@ static eCommandResult_T ConsoleCommandVer(const char buffer[])
 
 static eCommandResult_T ConsoleCommandUsers(const char buffer[])
 {
+	IGNORE_UNUSED_VARIABLE(buffer);
 	ConsoleIoSendString("Authorized Users:");
 	//show some authorized users here
 }
 
 static eCommandResult_T ConsoleCommandRelay(const char buffer[])
 {
+	IGNORE_UNUSED_VARIABLE(buffer);
 	ConsoleIoSendString("Relay status:");
 	//Show relay status here
 }
 
 static eCommandResult_T ConsoleCommandAccel(const char buffer[])
 {
+	IGNORE_UNUSED_VARIABLE(buffer);
 	accels accelRes;
 	accelRes = accl_read();
-/* 	printf("Accel: X = %d.%3d, Y = %d.%3d, Z = %d.%3d\n", 
-            accels[0]/1000,accels[0]%1000, 
-            accels[1]/1000,accels[1]%1000,
-            accels[2]/1000,accels[2]%1000); */
-	printf("Accel: X = %dmg, Y = %dmg, Z = %dmg\n", accelRes.X, accelRes.Y, accelRes.Z);
-	ConsoleIoSendString("Accel Timer:");
+	char txBuffer[45];
 
-	//Show relay status here
+	sprintf(txBuffer, "Accel: X = %3dmg, Y = %3dmg, Z = %3dmg", accelRes.X, accelRes.Y, accelRes.Z);
+	ConsoleIoSendString(txBuffer);
+	ConsoleIoSendString(STR_ENDLINE);
+}
+
+static eCommandResult_T ConsoleCommandExit(const char buffer[])
+{
+	IGNORE_UNUSED_VARIABLE(buffer);
+	exitConsole = 1;
+	ConsoleIoSendString("Exiting console...");
+	ConsoleIoSendString(STR_ENDLINE);
 }
 
 const sConsoleCommandTable_T* ConsoleCommandsGetTable(void)
