@@ -20,6 +20,11 @@
 #define FlASHES 3
 #define BRIGHTNESS 0x02
 
+#define ACCEL_SAMPLES 100
+#define AVG_TOL       10
+
+#define MIN_ON_TIME 50
+
 extern "C" {
     #include "Adxl343.h"
     #include "relay.h"
@@ -58,3 +63,5 @@ bool compareUIDs(users userDataBase, MFRC522 rfidData);
 //See EEPROM Memory map for info on how data is stored
 void writeDatabase(users userDataBase);
 users readDatabase();
+
+bool checkInact(accels accelVals[ACCEL_SAMPLES]);

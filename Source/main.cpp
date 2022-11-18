@@ -22,6 +22,8 @@ absolute_time_t prevEdgeTime;
 
 uint8_t timerFlag = 0;
 uint8_t pixelFlag = 0;
+uint8_t accelFlag = 0;
+uint onOffTime = 0;
 
 bool timerCallback(repeating_timer_t *rt){
     timerFlag = 1;
@@ -30,6 +32,12 @@ bool timerCallback(repeating_timer_t *rt){
 
 bool pixelCallback(repeating_timer_t *rt){
     pixelFlag = 1;
+    onOffTime++;
+    return 1;
+}
+
+bool accelTimCallback(repeating_timer_t *rt){
+    accelFlag = 1;
     return 1;
 }
 
@@ -52,11 +60,15 @@ int main() {
     gpio_set_irq_enabled_with_callback(BUTTON_PIN,GPIO_IRQ_EDGE_RISE | GPIO_IRQ_EDGE_FALL, true, &buttonISR);
     volatile uint32_t currentTime = to_ms_since_boot(get_absolute_time());
     uint Button_Flag = 0;
-
+    //Neopixel Setup
     repeating_timer_t pixelTimer;
     add_repeating_timer_ms(100,pixelCallback, NULL, &pixelTimer);
     uint8_t flashCount = 0;
     uint8_t pixelStatus = 0;
+    //Accel Timer setup
+    repeating_timer_t accelTimer;
+    add_repeating_timer_ms(50,accelTimCallback, NULL, &accelTimer);
+    accels accelRes[ACCEL_SAMPLES];
 
     systemStates currentState = vehicleOff;
     MFRC522 mfrc522(RFID_CS, RFID_RST);
@@ -77,7 +89,7 @@ int main() {
     ConsoleInit();
     add_repeating_timer_ms(20, timerCallback, NULL, &timer);
 
-    accels accelRes;
+    
 
     systemInit(timer, mfrc522);
 
@@ -128,6 +140,7 @@ int main() {
                     currentState = vehicleOn;
                     flashCount = 0;
                     pixelStatus = 1;
+                    onOffTime = 0;
                     closeRelay(CLOSE_PIN);
                 }
 
@@ -148,7 +161,10 @@ int main() {
                 if(Button_Flag == 1){
                     currentState = vehicleShutdown;
                     Button_Flag = 0;
-                }                
+                }    
+                if(checkInact(accelRes) && (onOffTime > MIN_ON_TIME)){
+                    currentState = vehicleShutdown;
+                }            
                 break;
             case vehicleShutdown:
                 openRelay(OPEN_PIN);
@@ -166,45 +182,22 @@ int main() {
                     Button_Flag = 0;
                 }
                 break;
+        } //End currentState switch statement
+
+        if(accelFlag == 1){
+            for(int i = ACCEL_SAMPLES-1; i > 0; i--){
+                accelRes[i] = accelRes[i-1]; //Move everything one element out in the array, overwrite the final element
+            }
+            accelRes[0] = accl_read();
+            accelFlag = 0;
         }
-
-        
-/*         if (mfrc522.PICC_IsNewCardPresent()) {
-            if(mfrc522.PICC_ReadCardSerial()){
-                if(compareUIDs(authUsers, mfrc522))
-                {
-                    puts("UID MATCHES");
-                }
-                else{puts("NOT AUTHORIZED");}
-                puts("UID:");
-                for (int i = 0; i<mfrc522.uid.size; i++){
-                    printf("%X", mfrc522.uid.uiduint8_t[i]);
-                }
-                puts("\n");
-            }   
-        } */
-
-        // gpio_put(LED_PIN, 0);
-        // put_pixel(red);
-        accelRes = accl_read();
-
-        //closeRelay(CLOSE_PIN);
-        // busy_wait_ms(20);
-        // put_pixel(blue);
-        // //openRelay(OPEN_PIN);
-        // //gpio_put(LED_PIN, 1);
-        // //puts("Hello World\n");
-        // busy_wait_ms(20);
-
-        //busy_wait_ms(1);
-
         //Check if button has been presed
         currentTime = to_ms_since_boot(get_absolute_time());
         if(buttonEdge == RISING_EDGE && (currentTime-to_ms_since_boot(prevEdgeTime)) > BUTTON_DEB_TIME){
             Button_Flag = 1;
             buttonEdge = 0;
         }
-    }
+    } //End while(1)
     return 0;
 }
 
@@ -291,4 +284,28 @@ users readDatabase(){
         }
     }
     return eepromData;
+}
+
+bool checkInact(accels accelVals[ACCEL_SAMPLES]){
+    int compareSamp = 0;
+    int Xavg = 0;
+    int Yavg = 0;
+    int Zavg = 0;
+    for(int i = 0; i<ACCEL_SAMPLES; i++){
+        Xavg += accelVals[i].X;
+        Yavg += accelVals[i].Y;
+        Zavg += accelVals[i].Z;
+    }
+
+    Xavg = Xavg/ACCEL_SAMPLES;
+    Yavg = Yavg/ACCEL_SAMPLES;
+    Zavg = Zavg/ACCEL_SAMPLES;
+
+    if(
+        (abs(accelVals[compareSamp].X - Xavg) < AVG_TOL) &&
+        (abs(accelVals[compareSamp].Y - Yavg) < AVG_TOL) &&
+        (abs(accelVals[compareSamp].Z - Zavg) < AVG_TOL)
+    ){ return true;} //Vehicle is inactive
+
+    else{ return false;} //Vehicle is still moving
 }
