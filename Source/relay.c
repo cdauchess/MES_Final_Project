@@ -2,12 +2,12 @@
 #include "relay.h"
 
 alarm_callback_t closeTimerCallback(alarm_id_t id, void*user_data){
-    gpio_put(19,0);
+    gpio_put(18,0);
     return 0;
 }
 
 alarm_callback_t openTimerCallback(alarm_id_t id, void*user_data){
-    gpio_put(18,0);
+    gpio_put(19,0);
     return 0;
 }
 

@@ -15,8 +15,8 @@
 const uint LED_PIN = 25; //Onboard RP2040 LED
 const uint PIN_TX = 15; //Neopixel Pin
 const uint BUTTON_PIN = 14; //GPIO For button input
-const uint CLOSE_PIN = 19; //Relay open pin
-const uint OPEN_PIN = 18; //Relay close pin
+const uint CLOSE_PIN = 18; //Relay open pin
+const uint OPEN_PIN = 19; //Relay close pin
 
 //Button ISR Flag(s)
 uint buttonEdge = 0; //1 for rising, 2 for falling
@@ -103,7 +103,7 @@ int main() {
     writeDatabase(authUsers);
     busy_wait_ms(5);
     users TestRead;
-    TestRead = readDatabase();
+    authUsers = readDatabase();
     put_pixel(red);
     openRelay(OPEN_PIN);
 

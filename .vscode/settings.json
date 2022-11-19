@@ -18,5 +18,5 @@
     "cstdio": "cpp",
     "pio.h": "c"
 },
-"cortex-debug.variableUseNaturalFormat": true
+"cortex-debug.variableUseNaturalFormat": false
 }
