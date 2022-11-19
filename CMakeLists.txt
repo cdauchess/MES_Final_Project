@@ -17,6 +17,7 @@ add_executable(main
     source/consoleCommands.c
     source/consoleio.c
     source/CAT24C32.c
+    source/userFuncs.c
 )
 
 # generate the header file into the source tree as it is included in the RP2040 datasheet

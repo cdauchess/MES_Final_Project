@@ -13,6 +13,7 @@
 #include "consoleIo.h"
 #include "version.h"
 #include "Adxl343.h"
+#include "userFuncs.h"
 
 extern uint8_t exitConsole;
 
@@ -21,8 +22,6 @@ extern uint8_t exitConsole;
 static eCommandResult_T ConsoleCommandComment(const char buffer[]);
 static eCommandResult_T ConsoleCommandVer(const char buffer[]);
 static eCommandResult_T ConsoleCommandHelp(const char buffer[]);
-static eCommandResult_T ConsoleCommandParamExampleInt16(const char buffer[]);
-static eCommandResult_T ConsoleCommandParamExampleHexUint16(const char buffer[]);
 static eCommandResult_T ConsoleCommandUsers(const char buffer[]);
 static eCommandResult_T ConsoleCommandRelay(const char buffer[]);
 static eCommandResult_T ConsoleCommandAccel(const char buffer[]);
@@ -33,8 +32,6 @@ static const sConsoleCommandTable_T mConsoleCommandTable[] =
     {";", &ConsoleCommandComment, HELP("Comment! You do need a space after the semicolon. ")},
     {"help", &ConsoleCommandHelp, HELP("Lists the commands available")},
     {"ver", &ConsoleCommandVer, HELP("Get the version string")},
-    {"int", &ConsoleCommandParamExampleInt16, HELP("How to get a signed int16 from params list: int -321")},
-    {"u16h", &ConsoleCommandParamExampleHexUint16, HELP("How to get a hex u16 from the params list: u16h aB12")},
 	{"users", &ConsoleCommandUsers, HELP("Show current list of authorized users and admins")},
 	{"relay", &ConsoleCommandRelay, HELP("Show the current status of the output relay")},
 	{"accel", &ConsoleCommandAccel, HELP("Show the current values from the accelerometer")},
@@ -71,36 +68,6 @@ static eCommandResult_T ConsoleCommandHelp(const char buffer[])
 	return result;
 }
 
-static eCommandResult_T ConsoleCommandParamExampleInt16(const char buffer[])
-{
-	int16_t parameterInt;
-	eCommandResult_T result;
-	result = ConsoleReceiveParamInt16(buffer, 1, &parameterInt);
-	if ( COMMAND_SUCCESS == result )
-	{
-		ConsoleIoSendString("Parameter is ");
-		ConsoleSendParamInt16(parameterInt);
-		ConsoleIoSendString(" (0x");
-		ConsoleSendParamHexUint16((uint16_t)parameterInt);
-		ConsoleIoSendString(")");
-		ConsoleIoSendString(STR_ENDLINE);
-	}
-	return result;
-}
-static eCommandResult_T ConsoleCommandParamExampleHexUint16(const char buffer[])
-{
-	uint16_t parameterUint16;
-	eCommandResult_T result;
-	result = ConsoleReceiveParamHexUint16(buffer, 1, &parameterUint16);
-	if ( COMMAND_SUCCESS == result )
-	{
-		ConsoleIoSendString("Parameter is 0x");
-		ConsoleSendParamHexUint16(parameterUint16);
-		ConsoleIoSendString(STR_ENDLINE);
-	}
-	return result;
-}
-
 static eCommandResult_T ConsoleCommandVer(const char buffer[])
 {
 	eCommandResult_T result = COMMAND_SUCCESS;
@@ -116,7 +83,15 @@ static eCommandResult_T ConsoleCommandUsers(const char buffer[])
 {
 	IGNORE_UNUSED_VARIABLE(buffer);
 	ConsoleIoSendString("Authorized Users:");
-	//show some authorized users here
+	ConsoleSendString(STR_ENDLINE);
+	users authUsers;
+	authUsers = readDatabase();
+	char txBuffer[60];
+	for(int i = 0; i< authUsers.numUsers; i++){
+		sprintf(txBuffer, "User %d : 0x%x%x%x%x", i, authUsers.userList[i].uiduint8_t[0],authUsers.userList[i].uiduint8_t[1],authUsers.userList[i].uiduint8_t[2],authUsers.userList[i].uiduint8_t[3]);
+		ConsoleSendString(txBuffer);
+		ConsoleSendString(STR_ENDLINE);
+	}
 }
 
 static eCommandResult_T ConsoleCommandRelay(const char buffer[])

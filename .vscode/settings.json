@@ -16,7 +16,10 @@
     "neopixel.h": "c",
     "CAT24C32.h": "c",
     "cstdio": "cpp",
-    "pio.h": "c"
+    "pio.h": "c",
+    "relay.h": "c",
+    "console.h": "c",
+    "userFuncs.h": "c"
 },
 "cortex-debug.variableUseNaturalFormat": false
 }

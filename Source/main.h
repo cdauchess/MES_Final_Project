@@ -1,3 +1,6 @@
+#ifndef MAIN_H
+#define MAIN_H
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -10,7 +13,7 @@
 
 #include "MFRC522.h" //Adapted from arduino...should add a link to github repo here
 
-#define totalNumUsers 256
+
 
 #define RISING_EDGE 1
 #define FALLING_EDGE 2
@@ -31,19 +34,11 @@ extern "C" {
     #include "Neopixel.h" //From RP2040 SDK examples
     #include "console.h" //From Elecia White's demo...add github link here
     #include "CAT24C32.h"
+    #include "userFuncs.h"
 }
 
 
-typedef struct {
-		uint8_t		size;			// Number of uint8_ts in the UID. 4, 7 or 10.
-		uint8_t		uiduint8_t[4];
-		//uint8_t		sak;			// The SAK (Select acknowledge) uint8_t returned from the PICC after successful selection.
-} Uid;
 
-typedef struct {
-    uint8_t numUsers;
-    Uid userList[totalNumUsers]; //Provisioning for 100 users currently.  
-}users;
 
 typedef enum {
     vehicleOff,
@@ -61,7 +56,8 @@ void BUTTON_INIT();
 bool compareUIDs(users userDataBase, MFRC522 rfidData);
 
 //See EEPROM Memory map for info on how data is stored
-void writeDatabase(users userDataBase);
-users readDatabase();
+
 
 bool checkInact(accels accelVals[ACCEL_SAMPLES]);
+
+#endif //MAIN_H

@@ -1,3 +1,6 @@
+#ifndef CAT24C32_H
+#define CAT24C32_H
+
 #include "pico/stdlib.h"
 #include "hardware/i2c.h"
 
@@ -17,3 +20,5 @@ uint8_t eepromByteRead(uint16_t rAddr);
 
 //Page Read
 int eepromPageRead(uint8_t *rData, uint16_t rAddr, uint16_t rLength);
+
+#endif //CAT24C32_H
