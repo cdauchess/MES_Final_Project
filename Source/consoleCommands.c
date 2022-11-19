@@ -23,7 +23,6 @@ static eCommandResult_T ConsoleCommandComment(const char buffer[]);
 static eCommandResult_T ConsoleCommandVer(const char buffer[]);
 static eCommandResult_T ConsoleCommandHelp(const char buffer[]);
 static eCommandResult_T ConsoleCommandUsers(const char buffer[]);
-static eCommandResult_T ConsoleCommandRelay(const char buffer[]);
 static eCommandResult_T ConsoleCommandAccel(const char buffer[]);
 static eCommandResult_T ConsoleCommandExit(const char buffer[]);
 
@@ -33,7 +32,6 @@ static const sConsoleCommandTable_T mConsoleCommandTable[] =
     {"help", &ConsoleCommandHelp, HELP("Lists the commands available")},
     {"ver", &ConsoleCommandVer, HELP("Get the version string")},
 	{"users", &ConsoleCommandUsers, HELP("Show current list of authorized users and admins")},
-	{"relay", &ConsoleCommandRelay, HELP("Show the current status of the output relay")},
 	{"accel", &ConsoleCommandAccel, HELP("Show the current values from the accelerometer")},
 	{"exit", &ConsoleCommandExit, HELP("Exit the console and return to normal operation")},
 
@@ -88,17 +86,10 @@ static eCommandResult_T ConsoleCommandUsers(const char buffer[])
 	authUsers = readDatabase();
 	char txBuffer[60];
 	for(int i = 0; i< authUsers.numUsers; i++){
-		sprintf(txBuffer, "User %d : 0x%x%x%x%x", i, authUsers.userList[i].uiduint8_t[0],authUsers.userList[i].uiduint8_t[1],authUsers.userList[i].uiduint8_t[2],authUsers.userList[i].uiduint8_t[3]);
+		sprintf(txBuffer, "User %d : 0x%02X%02X%02X%02X", i, authUsers.userList[i].uiduint8_t[0],authUsers.userList[i].uiduint8_t[1],authUsers.userList[i].uiduint8_t[2],authUsers.userList[i].uiduint8_t[3]);
 		ConsoleSendString(txBuffer);
 		ConsoleSendString(STR_ENDLINE);
 	}
-}
-
-static eCommandResult_T ConsoleCommandRelay(const char buffer[])
-{
-	IGNORE_UNUSED_VARIABLE(buffer);
-	ConsoleIoSendString("Relay status:");
-	//Show relay status here
 }
 
 static eCommandResult_T ConsoleCommandAccel(const char buffer[])
