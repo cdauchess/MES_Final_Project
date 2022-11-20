@@ -10,7 +10,7 @@ const int sclPin = 3;
 const int acclBaud = 100000;
 
 
-
+//Initialize the accelerometer
 int accl_I2C_Init(){
     i2c_init(i2c1,acclBaud);
     gpio_set_function(sdaPin, GPIO_FUNC_I2C);
@@ -19,12 +19,13 @@ int accl_I2C_Init(){
     gpio_pull_up(sclPin);
 }
 
+//Write a single byte to an acceleromter register
 int accl_write_reg(uint8_t regAddr, uint8_t regData){
     uint8_t txBuffer[] = {regAddr, regData};
     i2c_write_blocking(i2c1,ACCL_ADDR,txBuffer,2,false);
 }
 
-//Accl wake up
+//Wakeup and configure the accelerometer for continuous read
 int accl_wakeup(){
     uint8_t measureBit = 3;
     uint8_t powerReg = 0x2D;
@@ -51,6 +52,7 @@ int accl_wakeup(){
     i2c_read_blocking(i2c1,ACCL_ADDR,&buffer,1,false);
 }
 
+//Read the accel data from the accelerometer
 //0x32 - 0x37 are the data registers
 //0:X, 1:Y, 2:Z
 accels accl_read(){

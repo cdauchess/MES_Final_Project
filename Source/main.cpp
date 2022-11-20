@@ -213,9 +213,6 @@ int main() {
 }
 
 void systemInit(repeating_timer consoleTimer, MFRC522 rfid){
-    //Console
-    
-    
     //Onboard RP2040 LED
     gpio_init(LED_PIN);
     gpio_set_dir(LED_PIN, GPIO_OUT);
@@ -232,12 +229,15 @@ void systemInit(repeating_timer consoleTimer, MFRC522 rfid){
     
 }
 
+//Initialize GPIO for the button input.
 void BUTTON_INIT(){
     gpio_init(BUTTON_PIN);
     gpio_set_dir(BUTTON_PIN, GPIO_IN);
     gpio_pull_down(BUTTON_PIN);
 }
 
+//Compares the UID in rfidData to the entire user database.
+//If a match is found returns true.
 bool compareUIDs(users userDataBase, MFRC522 rfidData){
 
     for(int n = 0; n<userDataBase.numUsers; n++){ //Check against each authorized user
@@ -251,7 +251,7 @@ bool compareUIDs(users userDataBase, MFRC522 rfidData){
 }
 
 
-
+//Check if the vehicle is inactive, returns true if inactive
 bool checkInact(accels accelVals[ACCEL_SAMPLES]){
     int compareSamp = 0;
     int Xavg = 0;

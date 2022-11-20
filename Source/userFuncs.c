@@ -1,5 +1,6 @@
 #include "userFuncs.h"
 
+//Write the user data base to the EEPROM
 void writeDatabase(users userDatabase){
     uint arrElements = (userDatabase.numUsers*4) + 1;
     uint8_t writeData[arrElements];
@@ -30,6 +31,8 @@ void writeDatabase(users userDatabase){
     busy_wait_ms(1);
 }
 
+//Read the database from the EEPROM
+//Returns the read user database
 users readDatabase(){
     users eepromData;
     eepromData.numUsers = eepromByteRead(0); //user count is stored in the first byte
