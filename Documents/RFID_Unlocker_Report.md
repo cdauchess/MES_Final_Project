@@ -12,9 +12,10 @@ I'm using the Raspberry Pi PICO development board for this project.  This has a 
 - [RP PICO](https://www.raspberrypi.com/products/raspberry-pi-pico/)
     - Dual core Arm Cortex M0+
     - Development board that includes flash storage and power supply.
-- RFID: [MFRC522](https://www.amazon.com/SunFounder-Mifare-Reader-Arduino-Raspberry/dp/B07KGBJ9VG) : SPI
-    - RFID used to identify authorized users
-- [Latching Relay](https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6BK-1114P-US-DC5/369134) : GPIO
+- RFID: [MFRC522](https://www.amazon.com/SunFounder-Mifare-Reader-Arduino-Raspberry/dp/B07KGBJ9VG) : RFID used to identify authorized users through the unique ID of key tags
+    - SPI
+- [Latching Relay](https://www.digikey.com/en/products/detail/omron-electronics-inc-emc-div/G6BK-1114P-US-DC5/369134) : Used to enable/disable the vehicle
+    - GPIO
 - [WS2812B](https://www.adafruit.com/product/2761) LED
     - Fun with colors!
     - Indicates system status
@@ -24,10 +25,13 @@ I'm using the Raspberry Pi PICO development board for this project.  This has a 
         - White: Invalid card 
 - 12V to 5V [DC-DC Converter](https://www.digikey.com/en/products/detail/mornsun-america-llc/VRB1205S-6WR3/16348304)
     - Accepting 12V external power
-- [ADXL343](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL343.pdf) Accelerometer : I2C
+- [ADXL343](https://www.analog.com/media/en/technical-documentation/data-sheets/ADXL343.pdf) Accelerometer : Used to detect if the vehicle is inactive or not.
+    - I2C
     - This may be a point for future improvement by adding a gyro/magnetometer for better inactivity detection
-- [Button](https://www.digikey.com/en/products/detail/cui-devices/TS02-66-73-BK-160-SCR-D/15634261) for user interface : GPIO with interrupt
-- [CAT24C32](https://www.onsemi.com/pdf/datasheet/cat24c32-d.pdf) EEPROM : I2C
+- [Button](https://www.digikey.com/en/products/detail/cui-devices/TS02-66-73-BK-160-SCR-D/15634261) : Used for the user to interact with the device.
+    - GPIO with interrupt
+- [CAT24C32](https://www.onsemi.com/pdf/datasheet/cat24c32-d.pdf) EEPROM : Used to store the authorized user database.
+    - I2C
 
 ### Hardware Diagram:
 ![Hardware Diagram](/Images/HardwareDiagram.png)
