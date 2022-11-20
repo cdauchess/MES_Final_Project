@@ -53,6 +53,8 @@ Upon wakeup the system initializes and reads the authorized user data base from 
 
 The vehicle inactivity is determined by comparing the average acceleration on each axis for the past 5 seconds (sampled every 50 ms) to the current acceleration values.  If the difference on all 3 axes is below a tolerance (currently 50mG) the vehicle is determined to be inactive.  This needs to be calibrated on a vehicle, and likely extended to a longer time duration to prevent inactivity triggers for a short stop.
 
+See [here](/Documents/EEPROM%20Map.xlsx) for the memory map in the EEPROM.  The first byte contains the total number of users stored, and each user UID is 4 bytes long.  I have currently provisioned for 256 users, but I can rearrange should the unlikely scenario of more users required appear in the future.
+
 ### RP2040 SDK
 I worked with version 1.4.0 of the SDK.
 
@@ -144,6 +146,9 @@ Once the project is built you can flash and begin the debug process by opening t
  
 This will put you into the debug mode where you can pause/run the system, view variables, etc.
 
+In order to access the console over the onboard USB rather than the picoprobe you need to enable the stdio over USB.  This can be done by replacing the 0 for a 1 in the CMakeLists.txt file line "pico_enable_stdio_usb(main 0)".  The uart stdio should also be disabled by replacing the 1 with a 0 on the line "pico_enable_stdio_uart(main 0)".  Rebuild and reflash the target after doing this to have access to the console over the onboard USB connector.
+![usb Setting](../Images/usb_setting.png)
+
 
 ## Power Analysis
 
@@ -195,11 +200,11 @@ The addition of a CAN transceiver and controller would be a nice alternate metho
 ## Self Assesment
 | Criteria  | Score   |  Comments  |
 |---|---|---|
-| Project meets minimum requirements  | 2  | I had 1 more peripheral than required (however 2 of them communicated over I2C).  However I didn't go too far beyond the minimum requirements.  |
-| Completeness of deliverables  |   |   |
-| Clear intentions and working code  |   |   |
-| Reuisng code  |   |   |
-| Originality and scope of goals  |   |   |
+| Project meets minimum requirements  | 2.5  | I had 1 more peripheral than required (however 2 of them communicated over I2C).  However I didn't go too far beyond the minimum requirements.  |
+| Completeness of deliverables  | 2.5  | I went into depth on all the parts of my system as well as sucessfully demonstrated it in live class.  |
+| Clear intentions and working code  | 2  | The system works, but I feel like I could have done a better job documenting my code for future users.  |
+| Reuisng code  |  2 | I identified where external code came from and the licenses that came with each set.  Some of my modifications got mixed in.  |
+| Originality and scope of goals  | 2  | This system was fairly basic, but I felt that I learned a lot in the process of building this system  |
 | Bonus: power analysis  | 3  | Power analysis was performed even though the system is not intended to be powered by a small battery.  It is still good to understand the impact of this small of a system on a much larger battery  |
 | Bonus: version control used  |  3 | I used Git throughout the project.  I focused on using branches for each peripheral that I added.  |
 
