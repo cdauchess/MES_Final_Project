@@ -105,8 +105,10 @@ This code makes use of the PIO state machines on the RP2040 to PWM an output pin
 ### Diagrams
 
 Software Diagream:
+
 ![Software Diagram](/Images/SoftwareDiagram.png)
 Hierarchy of Control:
+
 ![Hierarchy of Control](/Images/HierarchyOfControl.png)
 
 ## Build Instructions
