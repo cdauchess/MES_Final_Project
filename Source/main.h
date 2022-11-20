@@ -24,7 +24,7 @@
 #define BRIGHTNESS 0x02
 
 #define ACCEL_SAMPLES 100
-#define AVG_TOL       10
+#define AVG_TOL       50
 
 #define MIN_ON_TIME 50
 

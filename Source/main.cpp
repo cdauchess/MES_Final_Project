@@ -128,6 +128,7 @@ int main() {
             case cardPresented:
                 if(compareUIDs(authUsers, mfrc522)){
                     currentState = Authorized;
+                    closeRelay(CLOSE_PIN);
                 }
                 else{currentState = notAuthorized;}
                 break;
@@ -149,7 +150,7 @@ int main() {
                     flashCount = 0;
                     pixelStatus = 1;
                     onOffTime = 0;
-                    closeRelay(CLOSE_PIN);
+                    
                 }
 
                 //Flash green LED
