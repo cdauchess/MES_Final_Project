@@ -19,7 +19,8 @@
     "pio.h": "c",
     "relay.h": "c",
     "console.h": "c",
-    "userFuncs.h": "c"
+    "userFuncs.h": "c",
+    "main.h":      "c"
 },
 "cortex-debug.variableUseNaturalFormat": false
 }

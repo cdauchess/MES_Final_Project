@@ -50,7 +50,6 @@ int accl_wakeup(){
     i2c_write_blocking(i2c1,ACCL_ADDR,&powerReg,1,true);
     i2c_read_blocking(i2c1,ACCL_ADDR,&buffer,1,false);
 }
-//Stream mode?  Time isn't super sensitive
 
 //0x32 - 0x37 are the data registers
 //0:X, 1:Y, 2:Z
@@ -71,11 +70,5 @@ accels accl_read(){
     tempAccel.Y *= scaleFactor;
     tempAccel.Z = buffer[5] << 8 | buffer[4];
     tempAccel.Z *=scaleFactor;
-
-    // for (int i = 0; i < 3; i++) {
-    //     accel[i] = (buffer[i * 2 + 1] << 8 | buffer[(i * 2)]);
-    //     accel[i] *= 3.9; //Scale output 3.9 mg/bit
-    // }
-    
     return tempAccel;
 }

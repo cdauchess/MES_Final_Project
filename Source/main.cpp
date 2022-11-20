@@ -81,9 +81,10 @@ int main() {
     MFRC522 mfrc522(RFID_CS, RFID_RST);
     //authUsers[1].size = 4;
     users authUsers;
-    authUsers.numUsers = 2;
-    authUsers.userList[0] = {4, {0x33, 0x0c, 0x24, 0x94}};
-    authUsers.userList[1] = {4, {0xDE, 0xAD, 0xC0, 0xDE}};
+    users testUsers;
+    testUsers.numUsers = 2;
+    testUsers.userList[0] = {4, {0x33, 0x0c, 0x24, 0x94}};
+    testUsers.userList[1] = {4, {0xDE, 0xAD, 0xC0, 0xDE}};
 
    //Base colors, low intensity 
     const uint32_t red = urgb_u32(1*BRIGHTNESS,0,0,0);
@@ -102,7 +103,7 @@ int main() {
 
     writeDatabase(authUsers);
     busy_wait_ms(5);
-    users TestRead;
+    
     authUsers = readDatabase();
     put_pixel(red);
     openRelay(OPEN_PIN);
@@ -152,14 +153,9 @@ int main() {
                     onOffTime = 0;
                     
                 }
-
-                //Flash green LED
-                //Enable Relay
-                
                 break;
             case notAuthorized:
-                //Flash red LED
-                //Disable Relay
+
                 put_pixel(white);
                 currentState = vehicleOff;
                 break;

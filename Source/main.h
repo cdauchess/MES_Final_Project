@@ -21,7 +21,7 @@
 
 //LED Settings
 #define FlASHES 3
-#define BRIGHTNESS 0x02
+#define BRIGHTNESS 0x3F
 
 #define ACCEL_SAMPLES 100
 #define AVG_TOL       50
